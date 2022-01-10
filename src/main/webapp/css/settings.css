@@ -1,0 +1,74 @@
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;800&display=swap");
+/* font-family: "Montserrat", sans-serif; */
+
+.h1 {
+  font-family: "Montserrat", sans-serif;
+}
+
+h6,
+h5,
+h3,
+h4 {
+  font-family: "Montserrat", sans-serif;
+}
+
+.card-footer,
+.card-header {
+  color: whitesmoke;
+  font-family: "Montserrat", sans-serif !important;
+}
+
+select option {
+  color: rgb(255, 255, 255);
+  background: rgb(45, 96, 133);
+}
+
+select {
+  color: whitesmoke !important;
+  background-color: rgba(0, 0, 0, 0) !important;
+}
+
+input[type="date"] {
+  color: rgb(255, 255, 255);
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+}
+
+input[type="submit"] {
+  font-family: "Montserrat", sans-serif !important;
+  color: rgb(0, 0, 0);
+  background-color: rgba(255, 255, 255, 1) !important;
+}
+
+input[type="submit"]:hover {
+  color: rgb(255, 255, 255);
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+#home {
+  font-family: "Montserrat", sans-serif !important;
+  color: rgb(0, 0, 0);
+  background-color: rgba(255, 255, 255, 1) !important;
+}
+
+#home:hover {
+  color: rgb(255, 255, 255);
+  background-color: rgba(0, 0, 0, 0.05) !important;
+}
+
+.form-control {
+  font-family: "Montserrat", sans-serif !important;
+  color: rgba(255, 255, 255, 1) !important;
+  background-color: rgba(255, 255, 255, 0.01) !important;
+}
+
+.form-floating label {
+  color: rgba(255, 255, 255, 1) !important;
+}
+
+input[type="text"]:disabled {
+  color: rgba(255, 255, 255, 1) !important;
+  background-color: rgba(255, 255, 255, 0.39) !important;
+}

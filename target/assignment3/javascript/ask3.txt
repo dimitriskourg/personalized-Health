@@ -1,0 +1,5 @@
+gia na lysw to xss mporw apla na allaksw ola ta innerHTML me to innerText
+wstoso epeidh etsi opws to exw ylopoihsei dn ginetai se kapoies periptwseis, xrhsimopoiw mia gnwsth vivliothikh
+thn DOMPurify pou mporeite na thn vreite sto
+https://github.com/cure53/DOMPurify
+Paradeigmata yparxoun sto home.js arxeio
