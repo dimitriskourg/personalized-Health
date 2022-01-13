@@ -35,7 +35,7 @@ public class DeleteUser extends HttpServlet {
         EditSimpleUserTable sut = new EditSimpleUserTable();
 
 
-        if (session.getAttribute("username") != "admin") {
+        if (session.getAttribute("username") == "admin") {
             response.setStatus(401);
         }else {
             try {
@@ -72,7 +72,7 @@ public class DeleteUser extends HttpServlet {
         Connection con = DB_Connection.getConnection();
         Statement stmt = con.createStatement();
 
-        PreparedStatement st = con.prepareStatement("DELETE FROM users WHERE name = ?");
+        PreparedStatement st = con.prepareStatement("DELETE FROM users WHERE username = ?");
         st.setString(1,username);
         st.execute();
 
@@ -81,7 +81,7 @@ public class DeleteUser extends HttpServlet {
         Connection con = DB_Connection.getConnection();
         Statement stmt = con.createStatement();
 
-        PreparedStatement st = con.prepareStatement("DELETE FROM doctors WHERE name = ?");
+        PreparedStatement st = con.prepareStatement("DELETE FROM doctors WHERE username = ?");
         st.setString(1,username);
         st.execute();
 

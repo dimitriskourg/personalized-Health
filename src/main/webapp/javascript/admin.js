@@ -3,6 +3,7 @@ window.onload = function () {
 };
 
 function deleteUser(username) {
+  console.log("MPHKES");
   let xhr = new XMLHttpRequest();
   xhr.onload = function () {
     if (xhr.status === 200) {
@@ -96,7 +97,7 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
             <div class="col-md-4 ">${element.firstname} ${element.lastname}</div>
             <div class="col-md-3 ">${element.username}</div>
             <div class="col-md-2 ">${element.birthdate}</div>
-            <div class="col-md-3"><button class="btn btn-dark" onclick="window.location.href='#'">Delete User</button></
+            <div class="col-md-3"><button class="btn btn-dark" onclick="deleteUser('${element.username}')">Delete User</button></
       </div>
       `;
     });
