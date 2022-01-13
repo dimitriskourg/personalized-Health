@@ -37,6 +37,8 @@ public class Login extends HttpServlet {
                 out1.println(ret);
                 jo.remove("password");
                 //returns all fields for the user that logged in
+                System.out.println(ret);
+                System.out.println(jo);
                 out1.println(jo);
             } catch (SQLException | ClassNotFoundException throwables) {
                 throwables.printStackTrace();
@@ -78,6 +80,7 @@ public class Login extends HttpServlet {
         } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
         }
+        System.out.println(ret);
         out1.println(ret);
     }
 }
