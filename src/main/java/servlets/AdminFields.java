@@ -45,7 +45,7 @@ public class AdminFields extends HttpServlet {
                 ja.put(jo);
             }
             System.out.println(ja.toString());
-
+            response.setStatus(200);
             out1.println(ja.toString());
         } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
