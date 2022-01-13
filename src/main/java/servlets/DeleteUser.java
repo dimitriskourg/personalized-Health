@@ -28,17 +28,18 @@ public class DeleteUser extends HttpServlet {
         JSON_Converter converter = new JSON_Converter();
         JSONObject jo = new JSONObject(converter.getJSONFromAjax(request.getReader()));
         JSONObject ret = new JSONObject();
-        PrintWriter out1 = response.getWriter();
+
         String username = jo.getString("username");
 
         EditDoctorTable dt = new EditDoctorTable();
         EditSimpleUserTable sut = new EditSimpleUserTable();
 
 
-        if (session.getAttribute("username") == "admin") {
+        if (!session.getAttribute("username").equals("admin")) {
             response.setStatus(401);
         }else {
             try {
+                boolean flag = false;
 
                 for (Doctor doc:dt.databaseToDoctors()) {
 
@@ -46,6 +47,7 @@ public class DeleteUser extends HttpServlet {
                         ret.put("success","doctor with username"+username+" deleted");
                         delete_doctor(username);
                         response.setStatus(200);
+                        flag=true;
                     }
                 }
 
@@ -56,11 +58,14 @@ public class DeleteUser extends HttpServlet {
                         ret.put("success","user with username"+username+" deleted");
                         delete_user(username);
                         response.setStatus(200);
+                        flag=true;
                     }
                 }
+                if(!flag){
+                    ret.put("failure","user with username"+username+" not found");
+                    response.setStatus(404);
+                }
 
-                ret.put("failure","user with username"+username+" not found");
-                response.setStatus(404);
             } catch (SQLException | ClassNotFoundException throwables) {
                 throwables.printStackTrace();
                 response.setStatus(403);
@@ -71,19 +76,15 @@ public class DeleteUser extends HttpServlet {
     protected void delete_user(String username) throws SQLException, ClassNotFoundException {
         Connection con = DB_Connection.getConnection();
         Statement stmt = con.createStatement();
-
-        PreparedStatement st = con.prepareStatement("DELETE FROM users WHERE username = ?");
-        st.setString(1,username);
-        st.execute();
+        String update="DELETE FROM users WHERE username='"+username+"'";
+        stmt.execute(update);
 
     }
     protected void delete_doctor(String username) throws SQLException, ClassNotFoundException {
         Connection con = DB_Connection.getConnection();
         Statement stmt = con.createStatement();
-
-        PreparedStatement st = con.prepareStatement("DELETE FROM doctors WHERE username = ?");
-        st.setString(1,username);
-        st.execute();
+        String update="DELETE FROM doctors WHERE username='"+username+"'";
+        stmt.execute(update);
 
     }
 }
