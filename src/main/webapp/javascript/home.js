@@ -14,6 +14,7 @@ function isLoggedIn() {
     if (xhr.status === 200) {
       console.log("He is logged in!");
       //set username and image
+      console.log(xhr.responseText);
       let user = JSON.parse(xhr.responseText);
       FinalUser = user;
       console.log(FinalUser);
@@ -21,11 +22,6 @@ function isLoggedIn() {
       if (FinalUser.gender === "Female") {
         document.querySelector("#homeImage").src = "./images/patientFemale.png";
       }
-      //GIA NA DEIS THN ASKHSH 3 KANE UNCOMMENT TIS 2 EPOMENES GRAMMES KAI COMMENT THN PROHGOUMENH
-      //AYTH H GRAMMH EINAI ME TO BUG GIA TO ATTACK
-      // document.getElementById('username').innerHTML = user.address;
-      //AYTH H GRAMMH EINAI GIA NA FIXAREIS TO BUG
-      // document.getElementById('username').innerText = user.address;
     } else if (xhr.status !== 200) {
       console.log("error login: " + xhr.status);
       window.location.href = "./index.html";

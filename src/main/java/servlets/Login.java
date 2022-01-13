@@ -27,17 +27,14 @@ public class Login extends HttpServlet {
             try {
                 jo = new JSONObject(su.databaseUserToJSON(session.getAttribute("username").toString() , session.getAttribute("password").toString()));
                 response.setStatus(200);
-                JSONObject ret = new JSONObject();
                 if (session.getAttribute("username").equals("admin")){
-                    ret.put("success", "admin");
+                    jo.put("success", "admin");
                 }else{
-                    ret.put("success","user");
+                    jo.put("success","user");
                 }
                 //first returns if it user or admin
-                out1.println(ret);
                 jo.remove("password");
                 //returns all fields for the user that logged in
-                System.out.println(ret);
                 System.out.println(jo);
                 out1.println(jo);
             } catch (SQLException | ClassNotFoundException throwables) {
