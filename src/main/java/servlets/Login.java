@@ -58,6 +58,11 @@ public class Login extends HttpServlet {
                 ret.put("error", "The username or password is incorrect");
             }else{
                 response.setStatus(200);
+                if (username.equals("admin")){
+                    ret.put("success", "admin");
+                }else{
+                    ret.put("success","user");
+                }
                 session.setAttribute("username", username);
                 session.setAttribute("password", password);
             }
