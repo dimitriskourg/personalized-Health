@@ -31,7 +31,7 @@ public class ApproveDoctors extends HttpServlet {
         JSON_Converter converter = new JSON_Converter();
         JSONObject jo = new JSONObject(converter.getJSONFromAjax(request.getReader()));
 
-        if (session.getAttribute("username") != "admin") {
+        if (session.getAttribute("username").equals("admin")) {
             response.setStatus(403);
         } else {
 

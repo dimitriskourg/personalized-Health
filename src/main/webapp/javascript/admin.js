@@ -2,23 +2,6 @@ window.onload = function () {
   isLoggedIn();
 };
 
-function deleteUser(username) {
-  console.log("MPHKES");
-  let xhr = new XMLHttpRequest();
-  xhr.onload = function () {
-    if (xhr.status === 200) {
-      console.log("User Deleted!");
-    } else if (xhr.status !== 200) {
-      console.log("error: " + xhr.status);
-    }
-  };
-  const json = '{"username":"' + username + '"}';
-  console.log(json);
-  xhr.open("POST", "DeleteUser", true);
-  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
-  xhr.send(json);
-}
-
 function isLoggedIn() {
   let xhr = new XMLHttpRequest();
   xhr.onload = function () {
@@ -50,6 +33,26 @@ logout.addEventListener("click", function () {
   xhr.send();
 });
 
+function deleteUser(username) {
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      console.log("User Deleted!");
+    } else if (xhr.status !== 200) {
+      console.log("error: " + xhr.status);
+    }
+  };
+  const json = '{"username":"' + username + '"}';
+  console.log(json);
+  xhr.open("POST", "DeleteUser", true);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(json);
+}
+
+function certifyDoctor(username) {
+  console.log("MPHKES");
+}
+
 let AllInfo = document.querySelector("#showInfo");
 AllInfo.addEventListener("show.bs.modal", function (event) {
   // Button that triggered the modal
@@ -60,25 +63,23 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
   let modalBody = document.querySelector(".modal-body");
 
   let allUsers;
-  if (info === "editAllUsers") {
-    //take all users
-    let xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      if (xhr.status === 200) {
-        allUsers = JSON.parse(xhr.responseText);
-      } else if (xhr.status !== 200) {
-        console.log("error in data: " + xhr.status);
-      }
-    };
-    xhr.open("POST", "AdminFields", false);
-    xhr.send();
+  //take all users
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      allUsers = JSON.parse(xhr.responseText);
+    } else if (xhr.status !== 200) {
+      console.log("error in data: " + xhr.status);
+    }
+  };
+  xhr.open("POST", "AdminFields", false);
+  xhr.send();
+  console.log(allUsers);
 
+  if (info === "editAllUsers") {
     modalTitle.innerHTML = "Edit All Users";
     modalBody.innerHTML = `
     <div class="container-fluid">`;
-    console.log("All users:");
-    console.log(allUsers);
-    console.log(allUsers.users);
     allUsers.users.forEach((element) => {
       modalBody.innerHTML += `
       <div class="row mb-2 p-2 d-flex align-items-center border-bottom border-dark">
@@ -106,5 +107,19 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
     </div>`;
   } else if (info === "certificateDoctors") {
     modalTitle.innerHTML = "Certify Doctors";
+    modalBody.innerHTML = `
+    <div class="container-fluid">`;
+    allUsers.doctors.forEach((element) => {
+      if (element.certified === false) {
+        modalBody.innerHTML += `
+      <div class="row mb-2 p-2 d-flex align-items-center border-bottom border-dark">
+            <div class="col-md-4 ">${element.firstname} ${element.lastname}</div>
+            <div class="col-md-3 ">${element.username}</div>
+            <div class="col-md-2 ">${element.birthdate}</div>
+            <div class="col-md-3"><button class="btn btn-dark" onclick="certifyDoctor('${element.username}')">Certify User</button></
+      </div>
+        `;
+      }
+    });
   }
 });
