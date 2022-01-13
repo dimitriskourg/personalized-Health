@@ -12,7 +12,12 @@ function Login() {
   xhr.onload = function () {
     if (xhr.status === 200) {
       console.log("success login");
-      window.location.href = "./home.html";
+      console.log(xhr.responseText);
+      if (JSON.parse(xhr.responseText).success === "admin") {
+        window.location.href = "./admin.html";
+      } else {
+        window.location.href = "./home.html";
+      }
     } else if (xhr.status !== 200) {
       const response = JSON.parse(xhr.responseText);
       console.log("error login: " + xhr.status);
