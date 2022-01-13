@@ -13,10 +13,7 @@ import javax.servlet.http.*;
 import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
+import java.sql.*;
 import java.util.Objects;
 
 @WebServlet(name = "DeleteUser", value = "/DeleteUser")
@@ -75,23 +72,18 @@ public class DeleteUser extends HttpServlet {
         Connection con = DB_Connection.getConnection();
         Statement stmt = con.createStatement();
 
-        ResultSet rs;
-        rs = stmt.executeQuery("DELETE FROM users WHERE username = '" + username +"'");
-        while (rs.next()) {
-            System.out.println("===Result===");
-            DB_Connection.printResults(rs);
-        }
+        PreparedStatement st = con.prepareStatement("DELETE FROM users WHERE name = ?");
+        st.setString(1,username);
+        st.execute();
+
     }
     protected void delete_doctor(String username) throws SQLException, ClassNotFoundException {
         Connection con = DB_Connection.getConnection();
         Statement stmt = con.createStatement();
 
-        ResultSet rs;
-        rs = stmt.executeQuery("DELETE FROM doctors WHERE username = '" + username +"'");
-        while (rs.next()) {
-            System.out.println("===Result===");
-            DB_Connection.printResults(rs);
-        }
+        PreparedStatement st = con.prepareStatement("DELETE FROM doctors WHERE name = ?");
+        st.setString(1,username);
+        st.execute();
 
     }
 }
