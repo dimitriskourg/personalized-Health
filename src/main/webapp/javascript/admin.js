@@ -1,6 +1,22 @@
-// window.onload = function () {
-//   isLoggedIn();
-// };
+window.onload = function () {
+  isLoggedIn();
+};
+
+function deleteUser(username) {
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      console.log("User Deleted!");
+    } else if (xhr.status !== 200) {
+      console.log("error: " + xhr.status);
+    }
+  };
+  const json = '{"username":"' + username + '"}';
+  console.log(json);
+  xhr.open("POST", "DeleteUser", true);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(json);
+}
 
 function isLoggedIn() {
   let xhr = new XMLHttpRequest();
@@ -42,25 +58,52 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
   let modalTitle = document.querySelector(".modal-title");
   let modalBody = document.querySelector(".modal-body");
 
+  let allUsers;
   if (info === "editAllUsers") {
+    //take all users
+    let xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        allUsers = JSON.parse(xhr.responseText);
+      } else if (xhr.status !== 200) {
+        console.log("error in data: " + xhr.status);
+      }
+    };
+    xhr.open("POST", "AdminFields", false);
+    xhr.send();
+
     modalTitle.innerHTML = "Edit All Users";
     modalBody.innerHTML = `
-    <div class="container-fluid">
-      <div class="row d-flex justify-content-center align-items-center">
-        <div class="col-md-9">
-          <ul class="list-group list-group-horizontal">
-            <li class="list-group-item">Dimitris Kourgiantakis</li>
-            <li class="list-group-item">Chania</li>
-            <li class="list-group-item">Dimitris Kourgiantakis</li>
-            <li class="list-group-item">Chania</li>
-          </ul>
-        </div>
-        <div class="col-md-3">
-          <button class="btn btn-dark" onclick="window.location.href='#'">Delete User</button>
-        </div>
+    <div class="container-fluid">`;
+    console.log("All users:");
+    console.log(allUsers);
+    console.log(allUsers.users);
+    allUsers.users.forEach((element) => {
+      modalBody.innerHTML += `
+      <div class="row mb-2 p-2 d-flex align-items-center border-bottom border-dark">
+            <div class="col-md-4 ">${element.firstname} ${element.lastname}</div>
+            <div class="col-md-3 ">${element.username}</div>
+            <div class="col-md-2 ">${element.birthdate}</div>
+            <div class="col-md-3"><button class="btn btn-dark" onclick="deleteUser('${element.username}')">Delete User</button></
       </div>
+        `;
+    });
+
+    //d-flex justify-content-center align-items-center
+    allUsers.doctors.forEach((element) => {
+      modalBody.innerHTML += `
+      <div class="row mb-2 p-2 d-flex align-items-center border-bottom border-dark">
+            <div class="col-md-4 ">${element.firstname} ${element.lastname}</div>
+            <div class="col-md-3 ">${element.username}</div>
+            <div class="col-md-2 ">${element.birthdate}</div>
+            <div class="col-md-3"><button class="btn btn-dark" onclick="window.location.href='#'">Delete User</button></
+      </div>
+      `;
+    });
+
+    modalBody.innerHTML += `
     </div>`;
   } else if (info === "certificateDoctors") {
-    modalTitle.innerHTML = "Certificate Doctors";
+    modalTitle.innerHTML = "Certify Doctors";
   }
 });

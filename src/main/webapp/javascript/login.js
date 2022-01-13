@@ -46,6 +46,7 @@ function isLoggedIn() {
   xhr.onload = function () {
     if (xhr.status === 200) {
       console.log("success login");
+      console.log(xhr.responseText);
       if (JSON.parse(xhr.responseText).success === "admin") {
         window.location.href = "./admin.html";
       } else {

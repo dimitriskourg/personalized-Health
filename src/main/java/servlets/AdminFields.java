@@ -47,7 +47,7 @@ public class AdminFields extends HttpServlet {
                 user_array.put(copy_of_user);
             }
 
-            String ret = "{users:" + doctor_array.toString() +",doctors"+ user_array.toString()+ "}";
+            String ret = "{\"users\":" + doctor_array.toString() +",\"doctors\":"+ user_array.toString()+ "}";
 
             System.out.println(ret);
             response.setStatus(200);
