@@ -39,7 +39,7 @@ public class DeleteUser extends HttpServlet {
 
 
         if (session.getAttribute("username") != "admin") {
-            response.setStatus(403);
+            response.setStatus(401);
         }else {
             try {
 

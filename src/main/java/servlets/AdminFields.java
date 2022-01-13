@@ -24,32 +24,37 @@ public class AdminFields extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter out1 = response.getWriter();
-        JSONArray ja = new JSONArray();
-        EditDoctorTable dt = new EditDoctorTable();
-        EditSimpleUserTable sut = new EditSimpleUserTable();
+        JSONArray doctor_array = new JSONArray();
+        JSONArray user_array = new JSONArray();
+        EditDoctorTable doctorTable = new EditDoctorTable();
+        EditSimpleUserTable userTable = new EditSimpleUserTable();
         try {
 
-            for (Doctor doc:dt.databaseToDoctors()) {
+            for (Doctor doc:doctorTable.databaseToDoctors()) {
 
-                JSONObject jo = new JSONObject(doc);
-                jo.remove("password");
-                ja.put(jo);
+                JSONObject copy_of_doctor = new JSONObject(doc);
+
+                copy_of_doctor.remove("password");
+                doctor_array.put(copy_of_doctor);
             }
 
-            ja.put("end_of_doctors");
 
-            for (SimpleUser user:sut.databaseToUsers()){
 
-                JSONObject jo = new JSONObject(user);
-                jo.remove("password");
-                ja.put(jo);
+            for (SimpleUser user:userTable.databaseToUsers()){
+
+                JSONObject copy_of_user = new JSONObject(user);
+                copy_of_user.remove("password");
+                user_array.put(copy_of_user);
             }
-            System.out.println(ja.toString());
+
+            String ret = "{users:" + doctor_array.toString() +",doctors"+ user_array.toString()+ "}";
+
+            System.out.println(ret);
             response.setStatus(200);
-            out1.println(ja.toString());
+            out1.println(ret);
         } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
-            response.setStatus(403);
+            response.setStatus(401);
         }
     }
 
