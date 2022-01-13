@@ -14,6 +14,7 @@ package servlets;
         import java.io.IOException;
         import java.io.PrintWriter;
         import java.sql.SQLException;
+        import java.util.Objects;
 
 
 @WebServlet(name = "AdminFields", value = "/AdminFields")
@@ -41,7 +42,9 @@ public class AdminFields extends HttpServlet {
 
 
             for (SimpleUser user:userTable.databaseToUsers()){
-
+                if(Objects.equals(user.getUsername(), "admin")){
+                    continue;
+                }
                 JSONObject copy_of_user = new JSONObject(user);
                 copy_of_user.remove("password");
                 user_array.put(copy_of_user);
