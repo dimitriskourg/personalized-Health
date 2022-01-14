@@ -22,6 +22,8 @@ public class CreateRandevouz extends HttpServlet {
         JSON_Converter converter = new JSON_Converter();
         JSONObject jo = new JSONObject(converter.getJSONFromAjax(request.getReader()));
         EditRandevouzTable randevouzTable = new EditRandevouzTable();
+
+        //creates a new randevouz
         Randevouz ran = new Randevouz();
         ran.setStatus("free");
         ran.setDate_time(jo.getString("date_time"));
@@ -32,6 +34,7 @@ public class CreateRandevouz extends HttpServlet {
         ran.setUser_info("");
         System.out.println(randevouzTable.randevouzToJSON(ran));
         try {
+            //puts it in the database
             randevouzTable.createNewRandevouz(ran);
             response.setStatus(200);
             ret.put("success","randevouz added to database");
