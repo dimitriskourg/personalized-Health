@@ -26,12 +26,13 @@ public class ApproveDoctors extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
 
+        System.out.println("Mphke");
         response.setContentType("application/json; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         JSON_Converter converter = new JSON_Converter();
         JSONObject jo = new JSONObject(converter.getJSONFromAjax(request.getReader()));
 
-        if (session.getAttribute("username").equals("admin")) {
+        if (!session.getAttribute("username").equals("admin")) {
             response.setStatus(403);
         } else {
 
