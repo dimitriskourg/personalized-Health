@@ -209,4 +209,20 @@ public class EditDoctorTable {
         }
     }
 
+
+    public void updateDoctor(String username,double weight,
+                                 String email, String password, String firstname, String lastname, String birthdate,
+                                 String gender, String country, String city, String address,
+                                 String telephone, int height, int blooddonor,
+                                 String bloodtype, String specialty , String doctor_info) throws SQLException, ClassNotFoundException{
+        Connection con = DB_Connection.getConnection();
+        Statement stmt = con.createStatement();
+        String update="UPDATE doctors SET weight = '"+weight+"', email = '" +email+ "', password = '" +password+
+                "', firstname = '"+firstname+ "', lastname = '" +lastname+ "', birthdate = '" +birthdate+
+                "', gender = '" +gender+ "', country = '" +country+ "', city = '" +city+
+                "', address = '" +address+ "', telephone = '" +telephone+ "', height = '" +height+
+                "', blooddonor = '" +blooddonor+ "', bloodtype = '" +bloodtype +"',specialty ='"+specialty+
+                "',doctor_info ='"+doctor_info+"' WHERE username = '"+username+"'";
+        stmt.executeUpdate(update);
+    }
 }
