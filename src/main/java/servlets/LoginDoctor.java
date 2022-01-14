@@ -56,7 +56,10 @@ public class LoginDoctor extends HttpServlet {
         HttpSession session = request.getSession(true);
         try {
             Doctor su = eut.databaseToDoctor(username, password);
-            if(su == null){
+            if(su.getCertified()==0){
+                response.setStatus(401);
+                ret.put("error","doctor not yet certified");
+            }else if(su == null){
                 response.setStatus(403);
                 ret.put("error", "The username or password is incorrect");
             }else{
