@@ -9,7 +9,6 @@ function isLoggedIn() {
   xhr.onload = function () {
     if (xhr.status === 200) {
       console.log("He is logged in!");
-      console.log(xhr.responseText);
       let doctor = JSON.parse(xhr.responseText);
       FinalDoctor = doctor;
       console.log(FinalDoctor);
@@ -24,6 +23,21 @@ function isLoggedIn() {
   xhr.open("GET", "LoginDoctor", true);
   xhr.send();
 }
+
+const logout = document.querySelector("#logout");
+logout.addEventListener("click", function () {
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      console.log("He is logged out!");
+      window.location.href = "./indexDoctors.html";
+    } else if (xhr.status !== 200) {
+      console.log("error logout: " + xhr.status);
+    }
+  };
+  xhr.open("GET", "Logout", true);
+  xhr.send();
+});
 
 //to set today for datetime-local
 function today() {
@@ -60,8 +74,22 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
   let modalTitle = document.querySelector(".modal-title");
   let modalBody = document.querySelector(".modal-body");
 
+  let appointments;
+  const xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      appointments = JSON.parse(xhr.responseText);
+      console.log(appointments);
+    } else if (xhr.status !== 200) {
+      console.log("error: " + xhr.status);
+    }
+  };
+  const json = '{"id":"' + FinalDoctor.doctor_id + '"}';
+  console.log(json);
+  xhr.open("POST", "GetRantevouz", false);
+  xhr.send(json);
+
   if (info === "newAppointment") {
-    console.log(today());
     modalTitle.innerHTML = "New Appointment";
     modalBody.innerHTML = `
     <form id="newAppointment" class="container mb-5">
@@ -95,8 +123,7 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
         </div>
       </div>
     </form>`;
-
-    modalBody.innerHTML += `
+    let body = `
     <table class="table caption-top table-hover table-striped">
       <caption>All Appointments</caption>
       <thead>
@@ -108,25 +135,105 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
           <th scope="col">User Info</th>
           <th scope="col">Actions</th>
         </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <th scope="row" class="table-warning">Edit</th>
-          <td>25-3-2001</td>
-          <td>50$</td>
-          <td>Na min exei corona</td>
-          <td>Nikos Koutroulis</td>
-          <td>
-          <button type="button" class="btn btn-danger">Cancel</button>
-          <button type="button" class="btn btn-success">Done</button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  `;
-  } else if (info === "canceledAppointments") {
-    modalTitle.innerHTML = "Canceled Appointments";
+      </thead>`;
+    appointments.selected.forEach((appointment) => {
+      body += `
+          <tr>
+            <th scope="row" class="table-warning">Selected</th>
+            <td>${appointment.date_time}</td>
+            <td>${appointment.price}€</td>
+            <td>${appointment.doctor_info}</td>
+            <td>${
+              appointment.user_info === "null" ? "" : appointment.user_info
+            }</td>
+            <td>
+            <button type="button" class="btn btn-danger">Cancel</button>
+            <button type="button" class="btn btn-success">Done</button>
+            </td>
+          </tr>`;
+    });
+
+    appointments.free.forEach((appointment) => {
+      body += `
+          <tr>
+            <th scope="row" class="table-info">Available</th>
+            <td>${appointment.date_time}</td>
+            <td>${appointment.price}€</td>
+            <td>${appointment.doctor_info}</td>
+            <td>${
+              appointment.user_info === "null" ? "" : appointment.user_info
+            }</td>
+            <td>
+            <button type="button" class="btn btn-danger">Cancel</button>
+            <button type="button" class="btn btn-success">Done</button>
+            </td>
+          </tr>`;
+    });
+
+    body += `</tbody>
+      </table>`;
+    modalBody.innerHTML += body;
+  } else if (info === "cancelledAppointments") {
+    modalTitle.innerHTML = "Cancelled Appointments";
+    modalBody.innerHTML = ``;
+    let cancelled = `<table class="table caption-top table-hover table-striped">
+    <caption>Cancelled Appointments</caption>
+    <thead>
+      <tr>
+        <th scope="col">Status</th>
+        <th scope="col">Date</th>
+        <th scope="col">Price</th>
+        <th scope="col">Doctor Info</th>
+        <th scope="col">User Info</th>
+      </tr>
+    </thead>`;
+    appointments.cancelled.forEach((appointment) => {
+      cancelled += `
+          <tr>
+            <th scope="row" class="table-danger">Cancelled</th>
+            <td>${appointment.date_time}</td>
+            <td>${appointment.price}€</td>
+            <td>${appointment.doctor_info}</td>
+            <td>${
+              appointment.user_info === "null" ? "" : appointment.user_info
+            }</td>
+          </tr>`;
+    });
+    cancelled += `</tbody>
+      </table>`;
+    modalBody.innerHTML += cancelled;
   } else if (info === "doneAppointments") {
+    modalBody.innerHTML = ``;
     modalTitle.innerHTML = "Done Appointments";
+    let done = `<table class="table caption-top table-hover table-striped">
+    <caption>Done Appointments</caption>
+    <thead>
+      <tr>
+        <th scope="col">Status</th>
+        <th scope="col">Date</th>
+        <th scope="col">Price</th>
+        <th scope="col">Doctor Info</th>
+        <th scope="col">User Info</th>
+        <th scope="col">History</th>
+      </tr>
+    </thead>`;
+    appointments.cancelled.forEach((appointment) => {
+      done += `
+          <tr>
+            <th scope="row" class="table-success">Done</th>
+            <td>${appointment.date_time}</td>
+            <td>${appointment.price}€</td>
+            <td>${appointment.doctor_info}</td>
+            <td>${
+              appointment.user_info === "null" ? "" : appointment.user_info
+            }</td>
+            <td>
+            <button type="button" class="btn btn-info">Show History</button>
+            </td>
+          </tr>`;
+    });
+    done += `</tbody>
+      </table>`;
+    modalBody.innerHTML += done;
   }
 });
