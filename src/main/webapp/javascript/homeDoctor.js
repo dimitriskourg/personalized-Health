@@ -46,7 +46,8 @@ function today() {
   let mm = today.getMonth() + 1;
   let yyyy = today.getFullYear();
   let hh = today.getHours(); // => 9
-  let min = today.getMinutes(); // =>  30
+  let min = 0;
+  hh += 1;
 
   if (dd < 10) {
     dd = "0" + dd;
@@ -62,6 +63,60 @@ function today() {
   }
   today = yyyy + "-" + mm + "-" + dd + "T" + hh + ":" + min;
   return today;
+}
+
+function addNewApp() {
+  let json = {};
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      console.log("Appointment Added!");
+      document.querySelector("#price").value = "";
+      document.querySelector("#floatingTextarea2").value = "";
+      document.querySelector("#alert").innerHTML = `
+      <div class="alert alert-success alert-dismissible fade show" role="danger">
+      Appointment Added!
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+      //add the appointment to the table of free appointments
+      let appList = document.querySelector("#allAppointments");
+      //check if the appList
+      let id = appList.childElementCount;
+      console.log("Number of Childen: " + id);
+      //loop through childs and add a new tr at the end
+      const newTR = document.createElement("tr");
+      newTR.setAttribute("id", `appFree-${id + 1}`);
+      newTR.innerHTML = `
+      <th scope="row" class="table-info">Available</th>
+            <td>${json.date_time}</td>
+            <td>${json.price}€</td>
+            <td>${json.info}</td>
+            <td></td>
+            <td>
+            <button type="button" class="btn btn-danger">Cancel</button>
+            <button type="button" class="btn btn-success">Done</button>
+            </td>
+          </tr>`;
+      appList.appendChild(newTR);
+    } else if (xhr.status !== 200) {
+      console.log("error: " + xhr.status);
+      document.querySelector("#alert").innerHTML = `
+      <div class="alert alert-error alert-dismissible fade show" role="danger">
+      Appointment not added!
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+    }
+  };
+  const myForm = document.querySelector("#newAppointment");
+  let formData = new FormData(myForm);
+  formData.forEach((value, key) => {
+    json[key] = value;
+  });
+  json["id"] = FinalDoctor.doctor_id;
+  console.log(json);
+  xhr.open("POST", "CreateRandevouz", true);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
 }
 
 //here is a function that opens the modal widget
@@ -92,23 +147,24 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
   if (info === "newAppointment") {
     modalTitle.innerHTML = "New Appointment";
     modalBody.innerHTML = `
-    <form id="newAppointment" class="container mb-5">
+    <form id="newAppointment" class="container mb-5"
+    onsubmit="addNewApp(); return false;">
       <h3 class="text-center">New Appointment</h3>
       <div class="row">
         <div class="col-md-2">
           <div class="form-floating mb-3 col=4">
-            <input type="number" class="form-control" id="price" placeholder="50€">
+            <input type="number" class="form-control" id="price" name="price" required>
             <label for="price">Price</label>
           </div>
         </div>
         <div class="col-md-6 d-flex align-items-center mb-2">
-          <input type="datetime-local" id="meeting-time" style="height:70%" min="${today()}" value="${today()}">
+          <input type="datetime-local" id="meeting-time" style="height:70%" min="${today()}" value="${today()}" name="date_time" required>
         </div>
       </div>
       <div class="row mb-2">
         <div class="col-md-5 mb-2">
           <div class="form-floating">
-            <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100%"></textarea>
+            <textarea class="form-control" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100%" name="info" required></textarea>
             <label for="floatingTextarea2">Comments</label>
           </div>
         </div>
@@ -122,6 +178,7 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
         />
         </div>
       </div>
+      <div id="alert"></div>
     </form>`;
     let body = `
     <table class="table caption-top table-hover table-striped">
@@ -135,10 +192,11 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
           <th scope="col">User Info</th>
           <th scope="col">Actions</th>
         </tr>
-      </thead>`;
-    appointments.selected.forEach((appointment) => {
+      </thead>
+      <tbody id="allAppointments">`;
+    appointments.selected.forEach((appointment, index) => {
       body += `
-          <tr>
+          <tr id="appSel-${index}">
             <th scope="row" class="table-warning">Selected</th>
             <td>${appointment.date_time}</td>
             <td>${appointment.price}€</td>
@@ -153,9 +211,9 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
           </tr>`;
     });
 
-    appointments.free.forEach((appointment) => {
+    appointments.free.forEach((appointment, index) => {
       body += `
-          <tr>
+          <tr id="appFree-${index}">
             <th scope="row" class="table-info">Available</th>
             <td>${appointment.date_time}</td>
             <td>${appointment.price}€</td>
@@ -173,6 +231,7 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
     body += `</tbody>
       </table>`;
     modalBody.innerHTML += body;
+    document.querySelector("#meeting-time").step = "1800";
   } else if (info === "cancelledAppointments") {
     modalTitle.innerHTML = "Cancelled Appointments";
     modalBody.innerHTML = ``;
@@ -186,7 +245,8 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
         <th scope="col">Doctor Info</th>
         <th scope="col">User Info</th>
       </tr>
-    </thead>`;
+    </thead>
+    <tbody id="allAppointments">`;
     appointments.cancelled.forEach((appointment) => {
       cancelled += `
           <tr>
@@ -216,7 +276,8 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
         <th scope="col">User Info</th>
         <th scope="col">History</th>
       </tr>
-    </thead>`;
+    </thead>
+    <tbody id="allAppointments">`;
     appointments.cancelled.forEach((appointment) => {
       done += `
           <tr>
