@@ -175,4 +175,27 @@ public class EditRandevouzTable {
         return null;
     }
 
+    public ArrayList<Randevouz> databaseToSameDateRandevouz(String date) throws SQLException, ClassNotFoundException {
+        Connection con = DB_Connection.getConnection();
+        Statement stmt = con.createStatement();
+        ArrayList<Randevouz> randevouzs_free=new ArrayList<Randevouz>();
+
+
+        ResultSet rs;
+        try {
+            rs = stmt.executeQuery("SELECT * FROM randevouz where date_time ='"+date+"'");
+            while (rs.next()) {
+                String json = DB_Connection.getResultsToJSON(rs);
+                Gson gson = new Gson();
+                Randevouz ran = gson.fromJson(json, Randevouz.class);
+                randevouzs_free.add(ran);
+            }
+            return randevouzs_free;
+
+        } catch (Exception e) {
+            System.err.println("Got an exception! ");
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
 }
