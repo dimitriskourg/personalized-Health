@@ -3,7 +3,6 @@ package servlets;
 import database.tables.EditRandevouzTable;
 import mainClasses.JSON_Converter;
 import mainClasses.Randevouz;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.servlet.*;

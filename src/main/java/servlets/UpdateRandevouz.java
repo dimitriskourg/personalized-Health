@@ -28,7 +28,10 @@ public class UpdateRandevouz extends HttpServlet {
 
 
         try {
-            if (randevouzTable.databaseToRandevouz(id).getUser_id()==0 && Objects.equals(action, "done")){
+            if (randevouzTable.databaseToRandevouz(id)==null){
+                ret.put("failure","no such randevouz id exists");
+                response.setStatus(404);
+            }else if (randevouzTable.databaseToRandevouz(id).getUser_id()==0 && Objects.equals(action, "done")){
                 ret.put("failure","no user in the this randevouz to be completed");
                 response.setStatus(403);
             }else{
