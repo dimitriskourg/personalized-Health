@@ -134,7 +134,7 @@ function updateRandevouz(action, id) {
       console.log(xhr.responseText);
       document.querySelector("#alert").innerHTML = `
       <div class="alert alert-danger alert-dismissible fade show" role="danger">
-      Error: ${JSON.parse(xhr.responseText).error}
+      ${JSON.parse(xhr.responseText).error}
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>`;
     }
@@ -144,30 +144,57 @@ function updateRandevouz(action, id) {
   xhr.send(JSON.stringify(json));
 }
 
+function openHistory(userid) {
+  let myCollapse = document.getElementById("collapseMain");
+  let bsCollapse = new bootstrap.Collapse(myCollapse, {
+    toggle: false,
+  });
+  myCollapse.innerHTML = `
+  <div class="card">
+    <div class="card-header" id="headingOne">
+    History
+    </div>
+    <div class="card-body">
+      userid: ${userid}
+      <br>
+      <button type="button" class="btn btn-info btn-lg my-2" data-bs-toggle="collapse" data-bs-target="#collapseMain">Close</button>
+    </div>
+  </div>`;
+  bsCollapse.show();
+}
+
 //here is a function that opens the modal widget
 let AllInfo = document.querySelector("#showInfo");
 AllInfo.addEventListener("show.bs.modal", function (event) {
   // Button that triggered the modal
   let button = event.relatedTarget;
   // Extract info from data-bs-* attributes
-  let info = button.getAttribute("data-bs-whatever");
+  let info;
+  try {
+    info = button.getAttribute("data-bs-whatever");
+  } catch (error) {
+    console.log(error);
+    info = "history";
+  }
   let modalTitle = document.querySelector(".modal-title");
   let modalBody = document.querySelector(".modal-body");
 
   let appointments;
-  const xhr = new XMLHttpRequest();
-  xhr.onload = function () {
-    if (xhr.status === 200) {
-      appointments = JSON.parse(xhr.responseText);
-      console.log(appointments);
-    } else if (xhr.status !== 200) {
-      console.log("error: " + xhr.status);
-    }
-  };
-  const json = '{"id":"' + FinalDoctor.doctor_id + '"}';
-  console.log(json);
-  xhr.open("POST", "GetRantevouz", false);
-  xhr.send(json);
+  if (info !== "history") {
+    const xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        appointments = JSON.parse(xhr.responseText);
+        console.log(appointments);
+      } else if (xhr.status !== 200) {
+        console.log("error: " + xhr.status);
+      }
+    };
+    const json = '{"id":"' + FinalDoctor.doctor_id + '"}';
+    console.log(json);
+    xhr.open("POST", "GetRantevouz", false);
+    xhr.send(json);
+  }
 
   if (info === "newAppointment") {
     modalTitle.innerHTML = "New Appointment";
@@ -298,7 +325,9 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
   } else if (info === "doneAppointments") {
     modalBody.innerHTML = ``;
     modalTitle.innerHTML = "Done Appointments";
-    let done = `<table class="table caption-top table-hover table-striped">
+    let done = `
+    <div class="collapse" id="collapseMain"></div>
+    <table class="table caption-top table-hover table-striped">
     <caption>Done Appointments</caption>
     <thead>
       <tr>
@@ -311,7 +340,7 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
       </tr>
     </thead>
     <tbody id="allAppointments">`;
-    appointments.done.forEach((appointment) => {
+    appointments.done.forEach((appointment, index) => {
       done += `
           <tr>
             <th scope="row" class="table-success">Done</th>
@@ -322,9 +351,12 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
               appointment.user_info === "null" ? "" : appointment.user_info
             }</td>
             <td>
-            <button type="button" class="btn btn-info">Show History</button>
+            <button type="button" class="btn btn-info" onclick = "openHistory(${
+              appointment.user_id
+            })" >Show History</button>
             </td>
-          </tr>`;
+          </tr>
+          `;
     });
     done += `</tbody>
       </table>`;
