@@ -42,7 +42,7 @@ public class CreateRandevouz extends HttpServlet {
                 if(jo.getInt("id")==randevouz.getDoctor_id()){
                     flag = true;
                 }
-                
+
             }
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();

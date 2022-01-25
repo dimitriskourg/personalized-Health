@@ -24,6 +24,7 @@ public class UpdateRandevouz extends HttpServlet {
 
         int id = jo.getInt("id");
         String action = jo.getString("action");
+        //to do na blepw ama to exei parei kapoios xrhsths prin to kanw done
 
         try {
             randevouzTable.updateRandevouz(id,action);
