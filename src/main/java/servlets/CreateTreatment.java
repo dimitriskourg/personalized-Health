@@ -50,7 +50,7 @@ public class CreateTreatment extends HttpServlet {
             try {
                 if (treatmentTable.databaseToTreatment_bloodtest_id(blood_id)!= null){
                     response.setStatus(403);
-                    ret.put("failure","treatment for this bloodtest already given");
+                    ret.put("error","treatment for this bloodtest already given");
                     out1.println(ret);
                 }else{
                     //puts it in the database
