@@ -194,6 +194,7 @@ function BMIcalculator(cb, cb2) {
       console.log(err);
     });
 
+  //TODO fix the api for height
   fetch(
     "https://fitness-calculator.p.rapidapi.com/idealweight?gender=male&height=180",
     {

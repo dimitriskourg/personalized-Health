@@ -80,12 +80,9 @@ function addNewApp() {
       </div>`;
       //add the appointment to the table of free appointments
       let appList = document.querySelector("#allAppointments");
-      //check if the appList
-      let id = appList.childElementCount;
-      console.log("Number of Childen: " + id);
-      //loop through childs and add a new tr at the end
+      //create a new element for the new appointment
       const newTR = document.createElement("tr");
-      newTR.setAttribute("id", `appFree-${id + 1}`);
+      newTR.setAttribute("id", `appFree-${Date.now()}`);
       newTR.innerHTML = `
       <th scope="row" class="table-info">Available</th>
             <td>${json.date_time}</td>
@@ -100,9 +97,10 @@ function addNewApp() {
       appList.appendChild(newTR);
     } else if (xhr.status !== 200) {
       console.log("error: " + xhr.status);
+      console.log(xhr.responseText);
       document.querySelector("#alert").innerHTML = `
-      <div class="alert alert-error alert-dismissible fade show" role="danger">
-      Appointment not added!
+      <div class="alert alert-danger alert-dismissible fade show" role="danger">
+      Error: ${JSON.parse(xhr.responseText).error}
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>`;
     }
@@ -115,6 +113,33 @@ function addNewApp() {
   json["id"] = FinalDoctor.doctor_id;
   console.log(json);
   xhr.open("POST", "CreateRandevouz", true);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
+}
+
+function updateRandevouz(action, id) {
+  let json = { action: action, id: id };
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      console.log("Randevouz Updated!");
+      document.querySelector(`#app-${id}`).remove();
+      document.querySelector("#alert").innerHTML = `
+      <div class="alert alert-success alert-dismissible fade show" role="danger">
+      Randevouz Updated!
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+    } else if (xhr.status !== 200) {
+      console.log("error: " + xhr.status);
+      console.log(xhr.responseText);
+      document.querySelector("#alert").innerHTML = `
+      <div class="alert alert-danger alert-dismissible fade show" role="danger">
+      Error: ${JSON.parse(xhr.responseText).error}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+    }
+  };
+  xhr.open("POST", "UpdateRandevouz", true);
   xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
   xhr.send(JSON.stringify(json));
 }
@@ -196,7 +221,7 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
       <tbody id="allAppointments">`;
     appointments.selected.forEach((appointment, index) => {
       body += `
-          <tr id="appSel-${index}">
+          <tr id="app-${appointment.randevouz_id}">
             <th scope="row" class="table-warning">Selected</th>
             <td>${appointment.date_time}</td>
             <td>${appointment.price}€</td>
@@ -205,15 +230,19 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
               appointment.user_info === "null" ? "" : appointment.user_info
             }</td>
             <td>
-            <button type="button" class="btn btn-danger">Cancel</button>
-            <button type="button" class="btn btn-success">Done</button>
+            <button type="button" class="btn btn-danger" onclick="updateRandevouz('cancelled' , ${
+              appointment.randevouz_id
+            })">Cancel</button>
+            <button type="button" class="btn btn-success" onclick="updateRandevouz('done' , ${
+              appointment.randevouz_id
+            })" >Done</button>
             </td>
           </tr>`;
     });
 
     appointments.free.forEach((appointment, index) => {
       body += `
-          <tr id="appFree-${index}">
+          <tr id="app-${appointment.randevouz_id}">
             <th scope="row" class="table-info">Available</th>
             <td>${appointment.date_time}</td>
             <td>${appointment.price}€</td>
@@ -222,8 +251,12 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
               appointment.user_info === "null" ? "" : appointment.user_info
             }</td>
             <td>
-            <button type="button" class="btn btn-danger">Cancel</button>
-            <button type="button" class="btn btn-success">Done</button>
+            <button type="button" class="btn btn-danger" onclick="updateRandevouz('cancelled' , ${
+              appointment.randevouz_id
+            })">Cancel</button>
+            <button type="button" class="btn btn-success" onclick="updateRandevouz('done' , ${
+              appointment.randevouz_id
+            })" >Done</button>
             </td>
           </tr>`;
     });
@@ -278,7 +311,7 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
       </tr>
     </thead>
     <tbody id="allAppointments">`;
-    appointments.cancelled.forEach((appointment) => {
+    appointments.done.forEach((appointment) => {
       done += `
           <tr>
             <th scope="row" class="table-success">Done</th>
