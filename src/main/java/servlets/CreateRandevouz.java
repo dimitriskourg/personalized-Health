@@ -3,7 +3,6 @@ package servlets;
 import database.tables.EditRandevouzTable;
 import mainClasses.JSON_Converter;
 import mainClasses.Randevouz;
-import org.json.JSONArray;
 import org.json.JSONObject;
 
 import javax.servlet.*;
@@ -39,7 +38,10 @@ public class CreateRandevouz extends HttpServlet {
         try {
             for (Randevouz randevouz:randevouzTable.databaseToSameDateRandevouz(date)) {
                 System.out.println(randevouz.getDate_time());
-                flag = true;
+                if(jo.getInt("id")==randevouz.getDoctor_id()){
+                    flag = true;
+                }
+
             }
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();

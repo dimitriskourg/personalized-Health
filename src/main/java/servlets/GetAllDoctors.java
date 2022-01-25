@@ -26,7 +26,9 @@ public class GetAllDoctors extends HttpServlet {
                 ja.put(jo);
             }
             System.out.println(ja.toString());
+            response.setStatus(200);
             out1.println(ja.toString());
+
         } catch (SQLException | ClassNotFoundException throwables) {
             throwables.printStackTrace();
             response.setStatus(403);

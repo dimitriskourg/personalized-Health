@@ -8,11 +8,13 @@ package database.tables;
 import mainClasses.BloodTest;
 import com.google.gson.Gson;
 import database.DB_Connection;
+import mainClasses.Randevouz;
 import mainClasses.SimpleUser;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -150,5 +152,30 @@ public class EditBloodTestTable {
         } catch (SQLException ex) {
             Logger.getLogger(EditBloodTestTable.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+
+    public ArrayList<BloodTest> databaseToBloodTest(String amka) throws SQLException, ClassNotFoundException {
+        Connection con = DB_Connection.getConnection();
+        Statement stmt = con.createStatement();
+        ArrayList<BloodTest> randevouzs_free=new ArrayList<BloodTest>();
+
+
+        ResultSet rs;
+        try {
+            rs = stmt.executeQuery("SELECT * FROM bloodtest WHERE amka='"+amka+"'");
+            while (rs.next()) {
+                String json = DB_Connection.getResultsToJSON(rs);
+                Gson gson = new Gson();
+                BloodTest ran = gson.fromJson(json, BloodTest.class);
+                randevouzs_free.add(ran);
+            }
+            return randevouzs_free;
+
+        } catch (Exception e) {
+            System.err.println("Got an exception! ");
+            System.err.println(e.getMessage());
+        }
+        return null;
     }
 }
