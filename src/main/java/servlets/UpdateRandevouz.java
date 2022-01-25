@@ -10,6 +10,7 @@ import javax.servlet.annotation.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.SQLException;
+import java.util.Objects;
 
 @WebServlet(name = "UpdateRandevouz", value = "/UpdateRandevouz")
 public class UpdateRandevouz extends HttpServlet {
@@ -24,12 +25,18 @@ public class UpdateRandevouz extends HttpServlet {
 
         int id = jo.getInt("id");
         String action = jo.getString("action");
-        //to do na blepw ama to exei parei kapoios xrhsths prin to kanw done
+
 
         try {
-            randevouzTable.updateRandevouz(id,action);
-            ret.put("success","randevouz updated");
-            response.setStatus(200);
+            if (randevouzTable.databaseToRandevouz(id).getUser_id()==0 && Objects.equals(action, "done")){
+                ret.put("failure","no user in the this randevouz to be completed");
+                response.setStatus(403);
+            }else{
+                randevouzTable.updateRandevouz(id,action);
+                ret.put("success","randevouz updated");
+                response.setStatus(200);
+            }
+
         } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
             ret.put("error","unexpected error in sql base");
