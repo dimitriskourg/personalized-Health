@@ -48,12 +48,19 @@ public class CreateTreatment extends HttpServlet {
 
 
             try {
-                //puts it in the database
-                treatmentTable.createNewTreatment(treatment);
-                response.setStatus(200);
-                ret.put("success","treatment added to database");
-                out1.println(ret);
-            } catch (ClassNotFoundException e) {
+                if (treatmentTable.databaseToTreatment_bloodtest_id(blood_id)!= null){
+                    response.setStatus(403);
+                    ret.put("error","treatment for this bloodtest already given");
+                    out1.println(ret);
+                }else{
+                    //puts it in the database
+                    treatmentTable.createNewTreatment(treatment);
+                    response.setStatus(200);
+                    ret.put("success","treatment added to database");
+                    out1.println(ret);
+                }
+
+            } catch (ClassNotFoundException | SQLException e) {
                 e.printStackTrace();
                 response.setStatus(401);
                 ret.put("error","something went wrong");

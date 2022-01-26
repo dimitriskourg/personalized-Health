@@ -2,8 +2,10 @@ package servlets;
 
 import database.tables.EditBloodTestTable;
 import database.tables.EditSimpleUserTable;
+import database.tables.EditTreatmentTable;
 import mainClasses.BloodTest;
 import mainClasses.JSON_Converter;
+import mainClasses.Treatment;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -28,14 +30,19 @@ public class UserBloodtest extends HttpServlet {
         JSONArray jsonArray = new JSONArray();
         JSON_Converter converter = new JSON_Converter();
         JSONObject front_end = new JSONObject(converter.getJSONFromAjax(request.getReader()));
+        JSONArray treat = new JSONArray();
 
         EditSimpleUserTable userTable = new EditSimpleUserTable();
         EditBloodTestTable table = new EditBloodTestTable();
-
+        EditTreatmentTable treatmentTable = new EditTreatmentTable();
         try {
             for (BloodTest test : table.databaseToBloodTest(userTable.databaseToSimpleUser(front_end.getInt("user_id")).getAmka())){
                 JSONObject jsonObject = new JSONObject(test);
                 jsonArray.put(jsonObject);
+            }
+            for(Treatment tr : treatmentTable.databaseToTreatment_user_id(front_end.getInt("user_id"))){
+                JSONObject jsonObject = new JSONObject(tr);
+                treat.put(jsonObject);
             }
             if (jsonArray.length()==0){
                 JSONObject jsonObject = new JSONObject();
@@ -44,8 +51,8 @@ public class UserBloodtest extends HttpServlet {
                 out1.println(jsonObject);
             }else{
                 response.setStatus(200);
-                System.out.println(jsonArray);
-                out1.println(jsonArray);
+                System.out.println("{\"bloodtest\":" + jsonArray.toString() +",\"treatment\":"+ treat.toString()+"}");
+                out1.println("{\"bloodtest\":" + jsonArray.toString() +",\"treatment\":"+ treat.toString()+"}");
             }
 
         } catch (SQLException | ClassNotFoundException e) {
