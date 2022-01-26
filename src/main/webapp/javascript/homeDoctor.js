@@ -234,6 +234,106 @@ function drawChart(tests) {
   chart.draw(data, google.charts.Line.convertOptions(options));
 }
 
+//function to add message from doctor to patient
+function addMessageDoctor(message, time) {
+  return `
+  <div class="d-flex flex-row justify-content-end mb-4">
+    <div>
+    <p class="small p-2 me-3 mb-1 text-white rounded-3 bg-primary">${message}</p>
+    <p class="small me-3 mb-3 rounded-3 text-muted d-flex justify-content-end">${time}</p>
+    </div>
+    <img src="./images/doctor.png" alt="avatar 1"
+    style="width: 45px; height: 100%;">
+  </div>
+  `;
+}
+
+//function to add message from patient to doctor
+function addMessagePatient(message, time) {
+  return `
+  <div class="d-flex flex-row justify-content-start mb-4">
+  <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3-bg.webp" alt="avatar 1"
+    style="width: 45px; height: 100%;">
+  <div>
+    <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;">${message}</p>
+    <p class="small ms-3 mb-3 rounded-3 text-muted">${time}</p>
+  </div>
+  </div>
+  `;
+}
+
+//function to send message to server
+function sendMessage(userid, doctorid) {
+  let message = document.querySelector("#message").value;
+  document.querySelector("#message").value = "";
+  let json = {};
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      addMessageDoctor(message, today());
+    } else if (xhr.status !== 200) {
+      console.log("error: " + xhr.status);
+      console.log(xhr.responseText);
+    }
+  };
+  json["message"] = message;
+  json["user_id"] = userid;
+  json["doctor_id"] = doctorid;
+  json["sender"] = "doctor";
+  xhr.open("POST", "SendMessage", true);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
+}
+
+//function to open chat collapse dialog
+function openChat(userid) {
+  let myCollapse = document.getElementById("collapseMain");
+  let bsCollapse = new bootstrap.Collapse(myCollapse, {
+    toggle: false,
+  });
+  myCollapse.innerHTML = `
+  <div class="card">
+    <div class="card-header" id="headingOne">
+    Chat
+    </div>
+    <div class="card-body">
+      <div class="mainChat my-2"></div>
+    </div>
+    <div class="card-footer text-muted d-flex justify-content-start align-items-center p-3">
+      <img src="./images/doctor.png" alt="avatar 3"
+        style="width: 40px; height: 100%;">
+      <input type="text" class="form-control form-control-lg" id="message"
+        placeholder="Type message">
+      <a class="mx-2" onclick= "sendMessage(${userid}, ${FinalDoctor.doctor_id})"><i class="fas fa-paper-plane"></i></a>
+      <button type="button" class="btn-close my-2" data-bs-toggle="collapse" data-bs-target="#collapseMain"></button>
+      </div>
+  </div>`;
+
+  document.querySelector(".mainChat").innerHTML = ``;
+  let chat = [
+    { message: "Hello", time: "12:00", user: "doctor" },
+    { message: "How are you?", time: "12:01", user: "patient" },
+    { message: "Pipa", time: "12:02", user: "doctor" },
+    { message: "pipis", time: "12:03", user: "patient" },
+  ];
+  chat.forEach((message) => {
+    if (message.user === "doctor") {
+      document.querySelector(".mainChat").innerHTML += addMessageDoctor(
+        message.message,
+        message.time
+      );
+    } else {
+      document.querySelector(".mainChat").innerHTML += addMessagePatient(
+        message.message,
+        message.time
+      );
+    }
+  });
+
+  bsCollapse.show();
+}
+
+//function to open History collapse dialog
 function openHistory(userid) {
   let myCollapse = document.getElementById("collapseMain");
   let bsCollapse = new bootstrap.Collapse(myCollapse, {
@@ -501,9 +601,12 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
               appointment.user_info === "null" ? "" : appointment.user_info
             }</td>
             <td>
-            <button type="button" class="btn btn-info" onclick = "openHistory(${
+            <button type="button" class="btn btn-info my-1" onclick = "openHistory(${
               appointment.user_id
             })" >Show History</button>
+            <button type="button" class="btn btn-secondary my-1" onclick = "openChat(${
+              appointment.user_id
+            })" >Open Patient Chat</button>
             </td>
           </tr>
           `;
