@@ -270,7 +270,10 @@ function sendMessage(userid, doctorid) {
   let xhr = new XMLHttpRequest();
   xhr.onload = function () {
     if (xhr.status === 200) {
-      addMessageDoctor(message, today());
+      document.querySelector(".mainChat").innerHTML += addMessageDoctor(
+        message,
+        today()
+      );
     } else if (xhr.status !== 200) {
       console.log("error: " + xhr.status);
       console.log(xhr.responseText);
@@ -280,7 +283,8 @@ function sendMessage(userid, doctorid) {
   json["user_id"] = userid;
   json["doctor_id"] = doctorid;
   json["sender"] = "doctor";
-  xhr.open("POST", "SendMessage", true);
+  console.log(json);
+  xhr.open("POST", "CreateMessage", true);
   xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
   xhr.send(JSON.stringify(json));
 }
@@ -310,25 +314,37 @@ function openChat(userid) {
   </div>`;
 
   document.querySelector(".mainChat").innerHTML = ``;
-  let chat = [
-    { message: "Hello", time: "12:00", user: "doctor" },
-    { message: "How are you?", time: "12:01", user: "patient" },
-    { message: "Pipa", time: "12:02", user: "doctor" },
-    { message: "pipis", time: "12:03", user: "patient" },
-  ];
-  chat.forEach((message) => {
-    if (message.user === "doctor") {
-      document.querySelector(".mainChat").innerHTML += addMessageDoctor(
-        message.message,
-        message.time
-      );
-    } else {
-      document.querySelector(".mainChat").innerHTML += addMessagePatient(
-        message.message,
-        message.time
-      );
+  let chat;
+  let json = {};
+  //get all messages from server
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      chat = JSON.parse(xhr.responseText);
+      console.log(chat);
+      chat.forEach((message) => {
+        if (message.sender === "doctor") {
+          document.querySelector(".mainChat").innerHTML += addMessageDoctor(
+            message.message,
+            message.date_time
+          );
+        } else if (message.sender === "user") {
+          document.querySelector(".mainChat").innerHTML += addMessagePatient(
+            message.message,
+            message.date_time
+          );
+        }
+      });
+    } else if (xhr.status !== 200) {
+      console.log("error: " + xhr.status);
+      console.log(xhr.responseText);
     }
-  });
+  };
+  json["user_id"] = userid;
+  json["doctor_id"] = FinalDoctor.doctor_id;
+  xhr.open("POST", "GetMessage", true);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
 
   bsCollapse.show();
 }
