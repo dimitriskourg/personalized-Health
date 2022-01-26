@@ -144,23 +144,84 @@ function updateRandevouz(action, id) {
   xhr.send(JSON.stringify(json));
 }
 
+//history charts
+google.charts.load("current", { packages: ["line"] });
+google.charts.setOnLoadCallback(drawChart);
+
+// window.addEventListener("resize", function () {
+//   "use strict";
+//   google.charts.load("current", { packages: ["line"] });
+//   google.charts.setOnLoadCallback(drawChart);
+// });
+
+function drawChart(tests) {
+  var data = new google.visualization.DataTable();
+  data.addColumn("string", "Date");
+  data.addColumn("number", "Cholesterol");
+  data.addColumn("number", "Blood Sugar");
+  data.addColumn("number", "Iron");
+  data.addColumn("number", "Vitamin B12");
+  data.addColumn("number", "Vitamin d3");
+
+  tests.forEach((test) => {
+    data.addRow([
+      test.test_date,
+      test.cholesterol,
+      test.blood_sugar,
+      test.iron,
+      test.vitamin_b12,
+      test.vitamin_d3,
+    ]);
+  });
+
+  var options = {
+    chart: {
+      title: "Comparison of Blood Tests",
+    },
+    width: "100%",
+    height: 400,
+  };
+
+  var chart = new google.charts.Line(document.getElementById("showCharts"));
+  chart.draw(data, google.charts.Line.convertOptions(options));
+}
+
 function openHistory(userid) {
   let myCollapse = document.getElementById("collapseMain");
   let bsCollapse = new bootstrap.Collapse(myCollapse, {
     toggle: false,
   });
+  //get all bloodtests
+  let json = { user_id: userid };
+  let tests;
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      tests = JSON.parse(xhr.responseText);
+      console.log(tests);
+    } else {
+      console.log("error: " + xhr.status);
+      console.log(xhr.responseText);
+    }
+  };
+  xhr.open("POST", "UserBloodtest", false);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
+
   myCollapse.innerHTML = `
   <div class="card">
     <div class="card-header" id="headingOne">
     History
     </div>
     <div class="card-body">
-      userid: ${userid}
+      <br>
+      <div id="showCharts"></div>
       <br>
       <button type="button" class="btn btn-info btn-lg my-2" data-bs-toggle="collapse" data-bs-target="#collapseMain">Close</button>
     </div>
   </div>`;
   bsCollapse.show();
+  drawChart(tests);
 }
 
 //here is a function that opens the modal widget
