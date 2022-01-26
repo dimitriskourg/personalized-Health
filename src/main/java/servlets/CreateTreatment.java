@@ -35,6 +35,29 @@ public class CreateTreatment extends HttpServlet {
         String start_date = jo.getString("start_date");
         int blood_id = jo.getInt("bloodtest_id");
 
+        String[] end_dateArr = end_date.split("-");
+        String[] start_dateArr = start_date.split("-");
+        
+
+        if (Integer.parseInt(end_dateArr[0])<Integer.parseInt(start_dateArr[0])){
+            response.setStatus(403);
+            ret.put("error","invalid date given , year of end treatment is before year of start treatment");
+            out1.println(ret);
+            return;
+        }else if(Integer.parseInt(end_dateArr[0])==Integer.parseInt(start_dateArr[0]) &&
+                Integer.parseInt(end_dateArr[1])<Integer.parseInt(start_dateArr[1])){
+            response.setStatus(403);
+            ret.put("error","invalid date given , month of end treatment is before month of start treatment");
+            out1.println(ret);
+            return;
+        }else if(Integer.parseInt(end_dateArr[0])==Integer.parseInt(start_dateArr[0]) &&
+                Integer.parseInt(end_dateArr[1])==Integer.parseInt(start_dateArr[1]) &&
+                Integer.parseInt(end_dateArr[2])<Integer.parseInt(start_dateArr[2])){
+            response.setStatus(403);
+            ret.put("error","invalid date given , day of end treatment is before day of start treatment");
+            out1.println(ret);
+            return;
+        }
 
 
         treatment.setTreatment_text(text);
