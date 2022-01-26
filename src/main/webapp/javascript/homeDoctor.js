@@ -158,6 +158,16 @@ function sendNewTreatment(userid, bloodtest_id) {
       document.querySelector("#start_date").value = "";
       document.querySelector("#end_date").value = "";
       document.querySelector("#treatment_text").value = "";
+      document.querySelector(".treatments").innerHTML += `
+      <div class="card my-2">
+        <div class="card-header">
+        ${json.start_date} / ${json.end_date}
+        </div>
+        <div class="card-body">
+        ${json.treatment_text}
+        </div>
+      </div>
+      `;
     } else if (xhr.status !== 200) {
       console.log("error: " + xhr.status);
       console.log(xhr.responseText);
@@ -267,7 +277,7 @@ function openHistory(userid) {
   testsAndTreatments.treatment.forEach((treatment) => {
     treatments.innerHTML += `<div class="card my-2">
     <div class="card-header">
-    ${treatment.start_date} - ${treatment.end_date}
+    ${treatment.start_date} / ${treatment.end_date}
     </div>
     <div class="card-body">
     ${treatment.treatment_text}
