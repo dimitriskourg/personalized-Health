@@ -43,7 +43,7 @@ public class CreateMessage extends HttpServlet {
 
             Message message = new Message();
             message.setDoctor_id(doctor_id);
-            message.setUser_id(doctor_id);
+            message.setUser_id(user_id);
             message.setMessage(msg);
             message.setSender(sender);
             message.setBloodtype(bloodtype);
