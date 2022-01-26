@@ -144,6 +144,44 @@ function updateRandevouz(action, id) {
   xhr.send(JSON.stringify(json));
 }
 
+function sendNewTreatment(userid, bloodtest_id) {
+  let json = {};
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      console.log("Treatment Added!");
+      document.querySelector("#alert").innerHTML = `
+      <div class="alert alert-success alert-dismissible fade show" role="danger">
+      Treatment Added!
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+      document.querySelector("#start_date").value = "";
+      document.querySelector("#end_date").value = "";
+      document.querySelector("#treatment_text").value = "";
+    } else if (xhr.status !== 200) {
+      console.log("error: " + xhr.status);
+      console.log(xhr.responseText);
+      document.querySelector("#alert").innerHTML = `
+      <div class="alert alert-danger alert-dismissible fade show" role="danger">
+      ${JSON.parse(xhr.responseText).error}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+    }
+  };
+  const myForm = document.querySelector("#newTreatment");
+  let formData = new FormData(myForm);
+  formData.forEach((value, key) => {
+    json[key] = value;
+  });
+  json["doctor_id"] = FinalDoctor.doctor_id;
+  json["user_id"] = userid;
+  json["bloodtest_id"] = bloodtest_id;
+  console.log(json);
+  xhr.open("POST", "CreateTreatment", true);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
+}
+
 //history charts
 google.charts.load("current", { packages: ["line"] });
 google.charts.setOnLoadCallback(drawChart);
@@ -193,12 +231,12 @@ function openHistory(userid) {
   });
   //get all bloodtests
   let json = { user_id: userid };
-  let tests;
+  let testsAndTreatments;
   let xhr = new XMLHttpRequest();
   xhr.onload = function () {
     if (xhr.status === 200) {
-      tests = JSON.parse(xhr.responseText);
-      console.log(tests);
+      testsAndTreatments = JSON.parse(xhr.responseText);
+      console.log(testsAndTreatments);
     } else {
       console.log("error: " + xhr.status);
       console.log(xhr.responseText);
@@ -217,11 +255,52 @@ function openHistory(userid) {
       <br>
       <div id="showCharts"></div>
       <br>
+      <div class="treatments my-2"></div>
+      <div class="addNewTreatment my-2"></div>
       <button type="button" class="btn btn-info btn-lg my-2" data-bs-toggle="collapse" data-bs-target="#collapseMain">Close</button>
     </div>
   </div>`;
   bsCollapse.show();
-  drawChart(tests);
+  drawChart(testsAndTreatments.bloodtest);
+  let treatments = document.querySelector(".treatments");
+  treatments.innerHTML = "";
+  testsAndTreatments.treatment.forEach((treatment) => {
+    treatments.innerHTML += `<div class="card my-2">
+    <div class="card-header">
+    ${treatment.start_date} - ${treatment.end_date}
+    </div>
+    <div class="card-body">
+    ${treatment.treatment_text}
+    </div>
+    </div>`;
+  });
+
+  let addNewTreatment = document.querySelector(".addNewTreatment");
+  addNewTreatment.innerHTML = `
+  <div class="card my-2">
+    <div class="card-header">
+    Add New Treatment
+    </div>
+    <div class="card-body">
+    <form id="newTreatment" onsubmit="sendNewTreatment(${userid}, ${
+    testsAndTreatments.bloodtest[testsAndTreatments.bloodtest.length - 1]
+      .bloodtest_id
+  }); return false;">
+      <div class="form-group">
+        <label for="start_date">Start Date</label>
+        <input type="date" class="form-control" id="start_date" name="start_date" required>
+      </div>
+      <label for="end_date">End Date</label>
+      <input type="date" class="form-control" id="end_date" name="end_date" required>
+      <div class="form-floating my-2">
+        <textarea class="form-control" placeholder="Leave a comment here"  id="treatment_text" style="height: 100%" name="treatment_text" required></textarea>
+        <label for="treatment_text">Treatment Text</label>
+      </div>
+      <button type="submit" class="btn btn-dark my-2">Add new Treatment</button>
+      <div id="alert"></div>
+    </form>
+    </div>
+  </div>`;
 }
 
 //here is a function that opens the modal widget
