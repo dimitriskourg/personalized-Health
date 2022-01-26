@@ -57,7 +57,7 @@ public class UserBloodtest extends HttpServlet {
 
         } catch (SQLException | ClassNotFoundException e) {
             JSONObject jsonObject = new JSONObject();
-            jsonObject.put("failure","didnt find any history of this user");
+            jsonObject.put("error","didnt find any history of this user");
             response.setStatus(403);
             out1.println(jsonObject);
             e.printStackTrace();
