@@ -71,7 +71,7 @@ public class CreateTreatment extends HttpServlet {
 
 
             try {
-                if (treatmentTable.databaseToTreatment_bloodtest_id(blood_id).size()==0){
+                if (treatmentTable.databaseToTreatment_bloodtest_id(blood_id).size()!=0){
                     response.setStatus(403);
                     ret.put("error","treatment for this bloodtest already given");
                     out1.println(ret);
