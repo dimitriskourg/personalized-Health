@@ -37,7 +37,7 @@ public class CreateTreatment extends HttpServlet {
 
         String[] end_dateArr = end_date.split("-");
         String[] start_dateArr = start_date.split("-");
-        
+
 
         if (Integer.parseInt(end_dateArr[0])<Integer.parseInt(start_dateArr[0])){
             response.setStatus(403);
@@ -71,7 +71,7 @@ public class CreateTreatment extends HttpServlet {
 
 
             try {
-                if (treatmentTable.databaseToTreatment_bloodtest_id(blood_id)!= null){
+                if (treatmentTable.databaseToTreatment_bloodtest_id(blood_id).size()==0){
                     response.setStatus(403);
                     ret.put("error","treatment for this bloodtest already given");
                     out1.println(ret);
