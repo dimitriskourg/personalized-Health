@@ -53,6 +53,7 @@ public class CreateMessage extends HttpServlet {
             messageTable.createNewMessage(message);
 
             ret.put("success","message sent");
+            ret.put("date_time",message.getDate_time());
             response.setStatus(200);
             out1.println(ret);
 
