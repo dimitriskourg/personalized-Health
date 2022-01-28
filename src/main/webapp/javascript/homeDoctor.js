@@ -308,10 +308,24 @@ function openChat(userid) {
         style="width: 40px; height: 100%;">
       <input type="text" class="form-control form-control-lg" id="message"
         placeholder="Type message">
-      <a class="mx-2" onclick= "sendMessage(${userid}, ${FinalDoctor.doctor_id})"><i class="fas fa-paper-plane"></i></a>
+      <a class="mx-2" id="sendMessage"  onclick= "sendMessage(${userid}, ${FinalDoctor.doctor_id})"><i class="fas fa-paper-plane"></i></a>
       <button type="button" class="btn-close my-2" data-bs-toggle="collapse" data-bs-target="#collapseMain"></button>
       </div>
   </div>`;
+
+  // to send message when enter is pressed
+  let input = document.getElementById("message");
+
+  // Execute a function when the user releases a key on the keyboard
+  input.addEventListener("keyup", function (event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+      // Cancel the default action, if needed
+      event.preventDefault();
+      // Trigger the button element with a click
+      document.getElementById("sendMessage").click();
+    }
+  });
 
   document.querySelector(".mainChat").innerHTML = ``;
   let chat;
@@ -632,3 +646,41 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
     modalBody.innerHTML += done;
   }
 });
+
+const changeSettings = document.querySelector("#changeSettings");
+changeSettings.addEventListener("click", function () {
+  $("body").load("./settingsDoctor.html", function () {
+    console.log("HERE12");
+    console.log(FinalDoctor);
+    document.querySelector("#username").value = FinalDoctor.username;
+    document.querySelector("#email").value = FinalDoctor.email;
+    document.querySelector("#amka").value = FinalDoctor.amka;
+    document.querySelector("#firstname").value = FinalDoctor.firstname;
+    document.querySelector("#lastname").value = FinalDoctor.lastname;
+    document.querySelector("#address").value = FinalDoctor.address;
+    document.querySelector("#city").value = FinalDoctor.city;
+    document.querySelector("#country").value = FinalDoctor.country;
+    document.querySelector("#mobile").value = FinalDoctor.telephone;
+    document.querySelector("#date").value = FinalDoctor.birthdate;
+    document.querySelector("#height").value = FinalDoctor.height;
+    document.querySelector("#weight").value = FinalDoctor.weight;
+    document.querySelector("#blood-type").value = FinalDoctor.bloodtype;
+    document.querySelector("#doctor_info").value = FinalDoctor.doctor_info;
+    FinalDoctor.blooddonor === 1
+      ? (document.querySelector("#yes").checked = true)
+      : (document.querySelector("#no").checked = true);
+    if (FinalDoctor.gender === "Male")
+      document.querySelector("#male").checked = true;
+    else if (FinalDoctor.gender === "Female")
+      document.querySelector("#female").checked = true;
+    else document.querySelector("#other").checked = true;
+    FinalDoctor.specialty === "Pathologist"
+      ? (document.querySelector("#pathologist").checked = true)
+      : (document.querySelector("#generalDoctor").checked = true);
+  });
+});
+
+//gia na ftiaksw to problhma p dn evriske thn synarthsh
+function cc() {
+  updateSettings();
+}
