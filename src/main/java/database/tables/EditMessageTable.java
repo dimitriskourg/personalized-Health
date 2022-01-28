@@ -111,7 +111,7 @@ public class EditMessageTable {
             //stmt.execute(table);
             System.out.println(insertQuery);
             stmt.executeUpdate(insertQuery);
-            System.out.println("# The bloodtest was successfully added in the database.");
+            System.out.println("# The message was successfully added in the database.");
 
             /* Get the member id from the database and set it to the member */
             stmt.close();
