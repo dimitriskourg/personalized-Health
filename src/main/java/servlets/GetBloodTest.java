@@ -18,7 +18,7 @@ public class GetBloodTest extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter out1 = response.getWriter();
-        JSONObject jo = new JSONObject();
+
         JSON_Converter converter = new JSON_Converter();
         JSONObject jsonObject = new JSONObject(converter.getJSONFromAjax(request.getReader()));
 
