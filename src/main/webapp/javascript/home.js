@@ -14,7 +14,6 @@ function isLoggedIn() {
     if (xhr.status === 200) {
       console.log("He is logged in!");
       //set username and image
-      console.log(xhr.responseText);
       let user = JSON.parse(xhr.responseText);
       FinalUser = user;
       console.log(FinalUser);
@@ -141,10 +140,8 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
     );
   }
 
-  //GIA NA DEIS THN ASKHSH 3 KANE UNCOMMENT TA COMMENTS
   let doctorInfo = button.getAttribute("data-bs-whatever");
   modalTitle.innerHTML = `${allDoctors[doctorInfo].firstname} ${allDoctors[doctorInfo].lastname}`;
-  //<li class="list-group-item">Address: ${allDoctors[doctorInfo].address}</li>
   modalBody.innerHTML = cleanData(`<ul class="list-group">
   <li class="list-group-item">City: ${allDoctors[doctorInfo].city}</li>
   <li class="list-group-item">Address: ${DOMPurify.sanitize(
@@ -194,9 +191,10 @@ function BMIcalculator(cb, cb2) {
       console.log(err);
     });
 
-  //TODO fix the api for height
   fetch(
-    "https://fitness-calculator.p.rapidapi.com/idealweight?gender=male&height=180",
+    `https://fitness-calculator.p.rapidapi.com/idealweight?gender=${FinalUser.gender.toLowerCase()}&height=${
+      FinalUser.height
+    }`,
     {
       method: "GET",
       headers: {
