@@ -237,10 +237,10 @@ function drawChart(tests) {
 //function to add message from doctor to patient
 function addMessageDoctor(message, time) {
   return `
-  <div class="d-flex flex-row justify-content-end mb-4">
+  <div class="d-flex flex-row justify-content-end mb-2 ms-5">
     <div>
-    <p class="small p-2 me-3 mb-1 text-white rounded-3 bg-primary">${message}</p>
-    <p class="small me-3 mb-3 rounded-3 text-muted d-flex justify-content-end">${time}</p>
+    <p class="small p-2 me-3 mb-1 text-white rounded-3 bg-primary text-break">${message}</p>
+    <p class="small me-3 mb-1 rounded-3 text-muted d-flex justify-content-end">${time}</p>
     </div>
     <img src="./images/doctor.png" alt="avatar 1"
     style="width: 45px; height: 100%;">
@@ -251,12 +251,12 @@ function addMessageDoctor(message, time) {
 //function to add message from patient to doctor
 function addMessagePatient(message, time) {
   return `
-  <div class="d-flex flex-row justify-content-start mb-4">
+  <div class="d-flex flex-row justify-content-start mb-2 me-5">
   <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3-bg.webp" alt="avatar 1"
     style="width: 45px; height: 100%;">
   <div>
-    <p class="small p-2 ms-3 mb-1 rounded-3" style="background-color: #f5f6f7;">${message}</p>
-    <p class="small ms-3 mb-3 rounded-3 text-muted">${time}</p>
+    <p class="small p-2 ms-3 mb-1 rounded-3 text-break" style="background-color: #9b9d9e6e;">${message}</p>
+    <p class="small ms-3 mb-1 rounded-3 text-muted">${time}</p>
   </div>
   </div>
   `;
@@ -270,10 +270,14 @@ function sendMessage(userid, doctorid) {
   let xhr = new XMLHttpRequest();
   xhr.onload = function () {
     if (xhr.status === 200) {
+      const response = JSON.parse(xhr.responseText);
       document.querySelector(".mainChat").innerHTML += addMessageDoctor(
         message,
-        today()
+        response.date_time
       );
+      //go to the bottom of the mainChat
+      document.querySelector(".mainChat").scrollTop =
+        document.querySelector(".mainChat").scrollHeight;
     } else if (xhr.status !== 200) {
       console.log("error: " + xhr.status);
       console.log(xhr.responseText);
@@ -301,7 +305,7 @@ function openChat(userid) {
     Chat
     </div>
     <div class="card-body">
-      <div class="mainChat my-2"></div>
+      <div class="mainChat my-2 overflow-auto" style="max-height: 310px; background-color: rgba(192,192,192,0.2); border-radius: 5px;"></div>
     </div>
     <div class="card-footer text-muted d-flex justify-content-start align-items-center p-3">
       <img src="./images/doctor.png" alt="avatar 3"
@@ -349,6 +353,8 @@ function openChat(userid) {
           );
         }
       });
+      document.querySelector(".mainChat").scrollTop =
+        document.querySelector(".mainChat").scrollHeight;
     } else if (xhr.status !== 200) {
       console.log("error: " + xhr.status);
       console.log(xhr.responseText);
