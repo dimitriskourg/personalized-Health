@@ -203,4 +203,27 @@ public class EditBloodTestTable {
         }
         return null;
     }
+
+    public BloodTest databaseToBloodTestWithId(int id) throws SQLException, ClassNotFoundException {
+        Connection con = DB_Connection.getConnection();
+        Statement stmt = con.createStatement();
+
+
+
+        ResultSet rs;
+        try {
+            rs = stmt.executeQuery("SELECT * FROM bloodtest WHERE bloodtest_id='"+id+"'");
+            rs.next();
+            String json = DB_Connection.getResultsToJSON(rs);
+            Gson gson = new Gson();
+            BloodTest ran = gson.fromJson(json, BloodTest.class);
+            return ran;
+
+
+        } catch (Exception e) {
+            System.err.println("Got an exception! ");
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
 }

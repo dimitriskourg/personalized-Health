@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.sql.Statement;
 
 @WebServlet(name = "UpdateBloodTest", value = "/UpdateBloodTest")
@@ -32,6 +33,22 @@ public class UpdateBloodTest extends HttpServlet {
         int id = front_end.getInt("bloodtest_id");
         int value = front_end.getInt("value");
 
+        try {
+            BloodTest test = table.databaseToBloodTestWithId(id);
+            if (test == null){
+                ret.put("error","The id doesnt exist");
+                response.setStatus(403);
+                out1.println(ret);
+                return;
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            e.printStackTrace();
+            ret.put("error","The id doesnt exist");
+            response.setStatus(403);
+            out1.println(ret);
+            return;
+        }
+
         if (value <= 0){
             ret.put("error","The given value is 0 or negative");
             response.setStatus(403);
@@ -50,7 +67,7 @@ public class UpdateBloodTest extends HttpServlet {
         try{
             Connection con = DB_Connection.getConnection();
             Statement stmt = con.createStatement();
-
+            ResultSet rs ;
             String update;
             switch (measure) {
                 case "cholesterol" :
