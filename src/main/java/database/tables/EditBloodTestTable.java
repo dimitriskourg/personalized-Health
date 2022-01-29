@@ -75,7 +75,8 @@ public class EditBloodTestTable {
         String update="UPDATE bloodtest SET cholesterol='"+chol+"', cholesterol_level='"+bt.getCholesterol_level()+"' WHERE bloodtest_id = '"+id+"'";
         stmt.executeUpdate(update);
     }
-  
+
+
        
        public void deleteBloodTest(int bloodtestid) throws SQLException, ClassNotFoundException{
         Connection con = DB_Connection.getConnection();
@@ -171,6 +172,53 @@ public class EditBloodTestTable {
                 randevouzs_free.add(ran);
             }
             return randevouzs_free;
+
+        } catch (Exception e) {
+            System.err.println("Got an exception! ");
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
+
+    public ArrayList<BloodTest> databaseToBloodTest(String amka,String min_date,String max_date) throws SQLException, ClassNotFoundException {
+        Connection con = DB_Connection.getConnection();
+        Statement stmt = con.createStatement();
+        ArrayList<BloodTest> randevouzs_free=new ArrayList<BloodTest>();
+
+
+        ResultSet rs;
+        try {
+            rs = stmt.executeQuery("SELECT * FROM bloodtest WHERE amka='"+amka+"' AND test_date BETWEEN '"+min_date+"' AND '"+max_date+"'");
+            while (rs.next()) {
+                String json = DB_Connection.getResultsToJSON(rs);
+                Gson gson = new Gson();
+                BloodTest ran = gson.fromJson(json, BloodTest.class);
+                randevouzs_free.add(ran);
+            }
+            return randevouzs_free;
+
+        } catch (Exception e) {
+            System.err.println("Got an exception! ");
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
+
+    public BloodTest databaseToBloodTestWithId(int id) throws SQLException, ClassNotFoundException {
+        Connection con = DB_Connection.getConnection();
+        Statement stmt = con.createStatement();
+
+
+
+        ResultSet rs;
+        try {
+            rs = stmt.executeQuery("SELECT * FROM bloodtest WHERE bloodtest_id='"+id+"'");
+            rs.next();
+            String json = DB_Connection.getResultsToJSON(rs);
+            Gson gson = new Gson();
+            BloodTest ran = gson.fromJson(json, BloodTest.class);
+            return ran;
+
 
         } catch (Exception e) {
             System.err.println("Got an exception! ");
