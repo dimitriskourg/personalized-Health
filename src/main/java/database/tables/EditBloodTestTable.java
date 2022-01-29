@@ -75,7 +75,8 @@ public class EditBloodTestTable {
         String update="UPDATE bloodtest SET cholesterol='"+chol+"', cholesterol_level='"+bt.getCholesterol_level()+"' WHERE bloodtest_id = '"+id+"'";
         stmt.executeUpdate(update);
     }
-  
+
+
        
        public void deleteBloodTest(int bloodtestid) throws SQLException, ClassNotFoundException{
         Connection con = DB_Connection.getConnection();
