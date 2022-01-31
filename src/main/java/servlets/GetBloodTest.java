@@ -18,7 +18,7 @@ import java.util.ArrayList;
 @WebServlet(name = "GetBloodTest", value = "/GetBloodTest")
 public class GetBloodTest extends HttpServlet {
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+    protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         PrintWriter out1 = response.getWriter();
 
         JSON_Converter converter = new JSON_Converter();
