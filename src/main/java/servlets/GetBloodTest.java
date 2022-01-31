@@ -1,8 +1,10 @@
 package servlets;
 
 import database.tables.EditBloodTestTable;
+import database.tables.EditTreatmentTable;
 import mainClasses.BloodTest;
 import mainClasses.JSON_Converter;
+import mainClasses.Treatment;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
@@ -25,12 +27,19 @@ public class GetBloodTest extends HttpServlet {
 
         JSONArray arr = new JSONArray();
         ArrayList <BloodTest> tests = new ArrayList<BloodTest>();
+        JSONArray treatments = new JSONArray();
+        EditTreatmentTable table = new EditTreatmentTable();
         EditBloodTestTable ed = new EditBloodTestTable();
 
         try {
             tests = ed.databaseToBloodTest(jsonObject.getString("amka"),jsonObject.getString("min_date"),jsonObject.getString("max_date"));
             for (BloodTest bd:tests){
                 JSONObject temp = new JSONObject(ed.bloodTestToJSON(bd));
+                if (table.databaseToTreatment_bloodtest_id(bd.getBloodtest_id())!=null){
+                    JSONObject treat_tmp = new JSONObject(table.databaseToTreatment_bloodtest_id(bd.getBloodtest_id()).get(0));
+                    treatments.put(treat_tmp);
+                }
+
                 arr.put(temp);
             }
 
@@ -41,7 +50,7 @@ public class GetBloodTest extends HttpServlet {
 
         }
         response.setStatus(200);
-        out1.println(arr);
+        out1.println("{\"bloodtest\":" + arr.toString() +",\"treatment\":"+ treatments.toString()+"}");
     }
 
 
