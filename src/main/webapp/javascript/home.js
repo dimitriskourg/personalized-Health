@@ -21,6 +21,7 @@ function isLoggedIn() {
       if (FinalUser.gender === "Female") {
         document.querySelector("#homeImage").src = "./images/patientFemale.png";
       }
+      ActiveRandevouz();
     } else if (xhr.status !== 200) {
       console.log("error login: " + xhr.status);
       window.location.href = "./index.html";
@@ -28,7 +29,27 @@ function isLoggedIn() {
   };
   xhr.open("GET", "Login", true);
   xhr.send();
+
 }
+function ActiveRandevouz(){
+
+    let xhr = new XMLHttpRequest();
+    xhr.onload = function () {
+      if (xhr.status === 200) {
+        let ran = JSON.parse(xhr.responseText);
+        console.log(ran)
+        if (ran.success == null){
+          alert("You have a rantevouz at "+ran.date_time + " doctor's info: "+ran.doctor_info + " and the price is "+ran.price)
+        }
+      } else if (xhr.status !== 200) {
+        console.log(xhr.responseText);
+      }
+    };
+    xhr.open("POST", "ActiveRandevouz", true);
+    xhr.send();
+
+}
+
 
 const logout = document.querySelector("#logout");
 logout.addEventListener("click", function () {

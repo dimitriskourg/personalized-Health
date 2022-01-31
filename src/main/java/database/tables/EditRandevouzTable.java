@@ -198,4 +198,28 @@ public class EditRandevouzTable {
         }
         return null;
     }
+
+    public Randevouz databaseToSameActiveRandevouz(String now , String after , int user_id) throws SQLException, ClassNotFoundException {
+        Connection con = DB_Connection.getConnection();
+        Statement stmt = con.createStatement();
+
+
+
+        ResultSet rs;
+        try {
+            rs = stmt.executeQuery("SELECT * FROM randevouz where date_time BETWEEN '"+now+"' AND '"+after+"' AND user_id ='"+user_id+"'");
+            while (rs.next()) {
+                String json = DB_Connection.getResultsToJSON(rs);
+                Gson gson = new Gson();
+                Randevouz ran = gson.fromJson(json, Randevouz.class);
+                return ran;
+            }
+            return null;
+
+        } catch (Exception e) {
+            System.err.println("Got an exception! ");
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
 }
