@@ -162,4 +162,29 @@ public class EditTreatmentTable {
         }
         return null;
     }
+
+
+    public ArrayList<Treatment> databaseToActiveTreatment(int user_id,String date) throws SQLException, ClassNotFoundException {
+        Connection con = DB_Connection.getConnection();
+        Statement stmt = con.createStatement();
+        ArrayList<Treatment> treatments=new ArrayList<Treatment>();
+
+
+        ResultSet rs;
+        try {
+            rs = stmt.executeQuery("SELECT * FROM treatment WHERE user_id='"+user_id+"' AND start_date < '"+date+"' AND end_date > '"+date+"'");
+            while (rs.next()) {
+                String json = DB_Connection.getResultsToJSON(rs);
+                Gson gson = new Gson();
+                Treatment ran = gson.fromJson(json, Treatment.class);
+                treatments.add(ran);
+            }
+            return treatments;
+
+        } catch (Exception e) {
+            System.err.println("Got an exception! ");
+            System.err.println(e.getMessage());
+        }
+        return null;
+    }
 }
