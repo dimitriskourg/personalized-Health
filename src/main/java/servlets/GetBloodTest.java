@@ -35,7 +35,8 @@ public class GetBloodTest extends HttpServlet {
             tests = ed.databaseToBloodTest(jsonObject.getString("amka"),jsonObject.getString("min_date"),jsonObject.getString("max_date"));
             for (BloodTest bd:tests){
                 JSONObject temp = new JSONObject(ed.bloodTestToJSON(bd));
-                if (table.databaseToTreatment_bloodtest_id(bd.getBloodtest_id())!=null){
+
+                if (table.databaseToTreatment_bloodtest_id(bd.getBloodtest_id()).size()!=0){
                     JSONObject treat_tmp = new JSONObject(table.databaseToTreatment_bloodtest_id(bd.getBloodtest_id()).get(0));
                     treatments.put(treat_tmp);
                 }
