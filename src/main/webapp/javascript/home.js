@@ -571,12 +571,19 @@ function searchBloodTests() {
   xhr.send(JSON.stringify(json));
 }
 
-//function to show all Blood Tests of the user and a form to add a new one
+//function to show all Blood Tests of the user\
 function openAllBloodTestsAndTreatmentsForaDate(allBloodTestsAndTreatments) {
   let myCollapse = document.getElementById("collapseMain");
   let bsCollapse = new bootstrap.Collapse(myCollapse, {
     toggle: false,
   });
+  if (allBloodTestsAndTreatments.bloodtest.length === 0) {
+    myCollapse.innerHTML += `
+    <h5 class="text-center">No Blood Test exist in given time period</h5>
+    `;
+    bsCollapse.show();
+    return;
+  }
   myCollapse.innerHTML = `
   <div class="card">
     <div class="card-header" id="headingOne" style="color: black;">
@@ -597,7 +604,159 @@ function openAllBloodTestsAndTreatmentsForaDate(allBloodTestsAndTreatments) {
     </div>
   </div>
   `;
+  drawChart(allBloodTestsAndTreatments.bloodtest); //draw the charts
   bsCollapse.show();
+}
+
+function showAllBloodTestsAndCharts(allBloodTestsAndTreatments) {
+  let html;
+  html = `<div id="showCharts" class="my-2"></div>
+  <div id="showTables" class="my-2"> ${showBloodTestsTables(
+    allBloodTestsAndTreatments
+  )}</div>
+  `;
+  return html;
+}
+
+function showBloodTestsTables(allBloodTestsAndTreatments) {
+  let allBloodTests = `
+  <table class="table caption-top table-hover table-striped table-sm">
+      <caption>All BloodTests</caption>
+      <thead>
+        <tr>
+          <th scope="col">Test Date</th>
+          <th scope="col">Medical Center</th>
+          <th scope="col">Blood Sugar</th>
+          <th scope="col">Blood Sugar Level</th>
+          <th scope="col">Cholesterol</th>
+          <th scope="col">Cholesterol Level</th>
+          <th scope="col">Iron</th>
+          <th scope="col">Iron Level</th>
+          <th scope="col">Vitamin D3</th>
+          <th scope="col">Vitamin D3 Level</th>
+          <th scope="col">Vitamin B12</th>
+          <th scope="col">Vitamin B12 Level</th>
+        </tr>
+      </thead>
+      <tbody id="allTests">
+  `;
+  allBloodTestsAndTreatments.bloodtest.forEach((bloodtest) => {
+    allBloodTests += `
+    <tr>
+      <td>${bloodtest.test_date}</td>
+      <td>${bloodtest.medical_center}</td>
+      <td>${bloodtest.blood_sugar}</td>
+      <td>${
+        bloodtest.blood_sugar_level === "null"
+          ? ""
+          : bloodtest.blood_sugar_level
+      }</td>
+      <td>${bloodtest.cholesterol}</td>
+      <td>${
+        bloodtest.cholesterol_level === "null"
+          ? ""
+          : bloodtest.cholesterol_level
+      }</td>
+      <td>${bloodtest.iron}</td>
+      <td>${bloodtest.iron_level === "null" ? "" : bloodtest.iron_level}</td>
+      <td>${bloodtest.vitamin_d3}</td>
+      <td>${
+        bloodtest.vitamin_d3_level === "null" ? "" : bloodtest.vitamin_d3_level
+      }</td>
+      <td>${bloodtest.vitamin_b12}</td>
+      <td>${
+        bloodtest.vitamin_b12_level === "null"
+          ? ""
+          : bloodtest.vitamin_b12_level
+      }</td>
+    </tr>
+    `;
+  });
+  allBloodTests += `
+      </tbody>
+    </table>
+  `;
+  return allBloodTests;
+}
+
+//history charts
+google.charts.load("current", { packages: ["line"] });
+google.charts.setOnLoadCallback(drawChart);
+function drawChart(tests) {
+  //history charts
+  var data = new google.visualization.DataTable();
+  data.addColumn("string", "Date");
+  data.addColumn("number", "Cholesterol");
+  data.addColumn("number", "Blood Sugar");
+  data.addColumn("number", "Iron");
+  data.addColumn("number", "Vitamin B12");
+  data.addColumn("number", "Vitamin d3");
+
+  tests.forEach((test) => {
+    data.addRow([
+      test.test_date,
+      test.cholesterol,
+      test.blood_sugar,
+      test.iron,
+      test.vitamin_b12,
+      test.vitamin_d3,
+    ]);
+  });
+
+  var options = {
+    chart: {
+      title: "Comparison of Blood Tests",
+    },
+    width: 1000,
+    height: 400,
+  };
+
+  var chart = new google.charts.Line(document.getElementById("showCharts"));
+  chart.draw(data, google.charts.Line.convertOptions(options));
+}
+
+function showAllTreatments(allBloodTestsAndTreatments) {
+  let treatments = ``;
+  //check if the array is empty
+  if (allBloodTestsAndTreatments.treatment.length === 0) {
+    treatments += `
+    <h5 class="text-center">No Treatments</h5>
+    `;
+    return treatments;
+  }
+  allBloodTestsAndTreatments.treatment.forEach((treatment) => {
+    treatments += `
+    <div class="card my-2">
+    <div class="card-header">
+    ${treatment.start_date} / ${treatment.end_date}
+    </div>
+    <div class="card-body">
+    ${treatment.treatment_text}
+    </div>
+    </div>
+    `;
+  });
+  return treatments;
+}
+
+function showAllActiveTreatments() {
+  let json = { user_id: FinalUser.user_id };
+  let xhr = new XMLHttpRequest();
+  let treatments;
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      treatments = JSON.parse(xhr.responseText);
+      console.log(treatments);
+    } else {
+      console.log(xhr.status);
+    }
+  };
+  xhr.open("POST", "GetActiveTreatments ", false);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
+  let fix = { treatment: treatments };
+  console.log(fix);
+  return showAllTreatments(fix);
 }
 
 //end of show all blood tests and Treatments of the user for specific dates
@@ -664,6 +823,9 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
       <div id="alert"></div>
     </form>
     </div>`;
+  } else if (info === "activeTreatments") {
+    modalTitle.innerHTML = "Active Treatments";
+    modalBody.innerHTML = `${showAllActiveTreatments()}`;
   } else {
     //show all doctors
     modalTitle.innerHTML = "All Doctors";
