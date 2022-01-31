@@ -541,6 +541,68 @@ function showAllBloodTests() {
 //end of show all Blood Tests of the user
 ////////////////////////////////////////////////////////////////////////////////////////////
 
+/////////////////////////////////////////////////////////////////////////////////////////////
+//start to show all blood tests and Treatments of the user for specific dates
+
+function searchBloodTests() {
+  let json = {};
+  const myForm = document.querySelector("#BloodTestsSearch");
+  let formData = new FormData(myForm);
+  formData.forEach((value, key) => {
+    json[key] = value;
+  });
+  json["amka"] = FinalUser.amka;
+  let xhr = new XMLHttpRequest();
+  let allBloodTestsAndTreatments;
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      console.log("All Blood Tests");
+      allBloodTestsAndTreatments = JSON.parse(xhr.responseText);
+      console.log(allBloodTestsAndTreatments);
+      openAllBloodTestsAndTreatmentsForaDate(allBloodTestsAndTreatments);
+      //show collapseMain
+    } else {
+      console.log("Error");
+      console.log(xhr.responseText);
+    }
+  };
+  xhr.open("POST", "GetBloodTest", true);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
+}
+
+//function to show all Blood Tests of the user and a form to add a new one
+function openAllBloodTestsAndTreatmentsForaDate(allBloodTestsAndTreatments) {
+  let myCollapse = document.getElementById("collapseMain");
+  let bsCollapse = new bootstrap.Collapse(myCollapse, {
+    toggle: false,
+  });
+  myCollapse.innerHTML = `
+  <div class="card">
+    <div class="card-header" id="headingOne" style="color: black;">
+      All Blood Tests and Treatments
+    </div>
+    <div class="card-body">
+      <h5 class="text-center">All Blood Tests:</h5>
+      <div class="overflow-auto" id="showAllBloodTests">${showAllBloodTestsAndCharts(
+        allBloodTestsAndTreatments
+      )}</div>
+      <br>
+      <h5 class="text-center">All Treatments:</h5>
+      <div class="overflow-auto" id="showAllTreatments">${showAllTreatments(
+        allBloodTestsAndTreatments
+      )}</div>
+      <br>
+      <button type="button" class="btn btn-dark btn-lg my-2" data-bs-toggle="collapse" data-bs-target="#collapseMain">Close</button>
+    </div>
+  </div>
+  `;
+  bsCollapse.show();
+}
+
+//end of show all blood tests and Treatments of the user for specific dates
+////////////////////////////////////////////////////////////////////////////////
+
 //here is a function that opens the modal widget
 let AllInfo = document.querySelector("#showInfo");
 AllInfo.addEventListener("show.bs.modal", function (event) {
@@ -588,6 +650,20 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
       Add new blood test
     </button>
     `;
+  } else if (info === "bloodtestsHistory") {
+    modalTitle.innerHTML = "Blood Tests History";
+    modalBody.innerHTML = `<div class="collapse mb-3" id="collapseMain"></div>`;
+    //search for blood tests between dates
+    modalBody.innerHTML += `<div my-4 id="MainBloodTestsSearch">
+    <form id="BloodTestsSearch" onsubmit="searchBloodTests(); return false;">
+      <label for="min_date" class="form-label">From</label>
+      <input type="date" class="form-control mb-2" id="min_date" name="min_date" required>
+      <label for="max_date" class="form-label">To</label>
+      <input type="date" class="form-control mb-2" id="max_date" name="max_date" required>
+      <button type="submit" class="btn btn-dark mb-2">Search</button>
+      <div id="alert"></div>
+    </form>
+    </div>`;
   } else {
     //show all doctors
     modalTitle.innerHTML = "All Doctors";
