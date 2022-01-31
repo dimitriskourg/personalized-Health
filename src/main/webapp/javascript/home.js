@@ -39,7 +39,27 @@ function ActiveRandevouz(){
         let ran = JSON.parse(xhr.responseText);
         console.log(ran)
         if (ran.success == null){
-          alert("You have a rantevouz at "+ran.date_time + " doctor's info: "+ran.doctor_info + " and the price is "+ran.price)
+
+          var div = document.getElementById("reminder");
+          div.innerHTML = "<div class=\"position-fixed top-0 end-0 p-3\" style=\"z-index: 11\">\n" +
+              "      <div id=\"liveToast\" class=\"toast\" role=\"alert\" aria-live=\"assertive\" aria-atomic=\"true\">\n" +
+              "        <div class=\"toast-header\">\n" +
+              "          <strong class=\"me-auto\">Randevouz Alert</strong>\n" +
+              "          <small>At: "+ran.date_time+"</small>\n" +
+              "          <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"toast\" aria-label=\"Close\"></button>\n" +
+              "        </div>\n" +
+              "        <div class=\"toast-body\">\n" +
+              "You have a rantevouz with <b>"+ran.doctor_name + "<br>Doctor's info:</b> "+ran.doctor_info + "<br><b>Price</b> is "+ran.price +
+              "        </div>\n" +
+              "      </div>\n" +
+              "    </div>"
+          var toast = new bootstrap.Toast(document.getElementById('liveToast'))
+          toast.show()
+
+
+
+
+
         }
       } else if (xhr.status !== 200) {
         console.log(xhr.responseText);
