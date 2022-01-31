@@ -74,34 +74,38 @@ changeSettings.addEventListener("click", function () {
   });
 });
 
+///////////////////////////////////////////////////////////////////////////////////////////////
 let allDoctors;
 const doctors = document.querySelector("#doctors");
 doctors.addEventListener("click", function () {
   // $("#main-buttons").load("./doctors.html");
   //get all doctors with AJAX
+  let doctorsList = document.getElementById("main-buttons");
+  doctorsList.innerHTML = "";
+  doctorsList.innerHTML += `<button class="btn btn-dark" onclick="sortByDoctors('distance')">Short By Distance</button>`;
+  doctorsList.innerHTML += `<button class="btn btn-dark" onclick="sortByDoctors('car')">Short By Duration</button>`;
+  doctorsList.innerHTML += `<button class="btn btn-dark" onclick="sortByDoctors('price')">Short By Price</button>`;
+  doctorsList.innerHTML += `<button class="btn btn-dark" onclick="window.location.href='./home.html'">Back To Home</button>`;
+});
+
+function getAllDoctors() {
   let xhr = new XMLHttpRequest();
   xhr.onload = function () {
     if (xhr.status === 200) {
       allDoctors = JSON.parse(xhr.responseText);
-      //set doctors
       console.log(allDoctors);
-      let doctorsList = document.getElementById("main-buttons");
-      doctorsList.innerHTML = "";
-      doctorsList.innerHTML += `<button class="btn btn-dark" onclick="sortByDoctors('distance')">Short By Distance</button>`;
-      doctorsList.innerHTML += `<button class="btn btn-dark" onclick="sortByDoctors('car')">Short By Duration</button>`;
-      doctorsList.innerHTML += `<button class="btn btn-dark" onclick="sortByDoctors('price')">Short By Price</button>`;
-      doctorsList.innerHTML += `<button class="btn btn-dark" onclick="window.location.href='./home.html'">Back To Home</button>`;
     } else if (xhr.status !== 200) {
       console.log("error doctors: " + xhr.status);
     }
   };
-  xhr.open("GET", "GetAllDoctors", true);
+  xhr.open("GET", "GetAllDoctors", false);
   xhr.send();
-});
+}
 
 //todo to fix more than 25 doctors problem
 //here is a function to short all doctors by many different criteria
 function sortByDoctors(criteria) {
+  getAllDoctors();
   console.log(
     `https://trueway-matrix.p.rapidapi.com/CalculateDrivingMatrix?origins=${origin()}&destinations=${destinations()}`
   );
@@ -137,7 +141,11 @@ function sortData(data, criteria) {
     ) {
       i++;
     }
-    allDoctors[i].distance = element;
+    if (element === null) {
+      allDoctors[i].distance = 1000000000000;
+    } else {
+      allDoctors[i].distance = element;
+    }
     i++;
   });
   i = 0;
@@ -149,7 +157,11 @@ function sortData(data, criteria) {
     ) {
       i++;
     }
-    allDoctors[i].duration = element;
+    if (element === null) {
+      allDoctors[i].duration = 100000000000;
+    } else {
+      allDoctors[i].duration = element;
+    }
     i++;
   });
   if (criteria === "distance") {
@@ -159,12 +171,46 @@ function sortData(data, criteria) {
     allDoctors.sort((a, b) => (a.duration > b.duration ? 1 : -1));
   }
   if (criteria === "price") {
+    getAllMinPricesOfDoctors();
+    //check every doctor if he has a price and remove him if he doesn't
+    console.log("All doctors with prices");
+    console.log(allDoctors);
+    allDoctors = allDoctors.filter((doctor) => {
+      if (doctor.minPrice == null) {
+        return false;
+      } else return true;
+    });
+    console.log("after Prices");
+    console.log(allDoctors);
+    allDoctors.sort((a, b) => (a.minPrice > b.minPrice ? 1 : -1));
     //todo fix for the price
   }
   let myModal = new bootstrap.Modal(document.getElementById("showInfo"), {
     keyboard: false,
   });
   myModal.show();
+}
+
+function getAllMinPricesOfDoctors() {
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      let prices = JSON.parse(xhr.responseText);
+      console.log("Prices: ");
+      console.log(prices);
+      prices.forEach((element) => {
+        allDoctors.forEach((doctor) => {
+          if (doctor.doctor_id == element.doctor_id) {
+            doctor.minPrice = element.price;
+          }
+        });
+      });
+    } else if (xhr.status !== 200) {
+      console.log("error doctors: " + xhr.status);
+    }
+  };
+  xhr.open("GET", "GetRandevouzIdPrice", false);
+  xhr.send();
 }
 
 function origin() {
@@ -202,6 +248,11 @@ function openDetails(doctor) {
         doctor
       )}</div>
       <br>
+      <h5 class="text-center">Doctors Randevouz:</h5>
+      <div id="alert"></div>
+      <div class="overflow-auto my-4" id="showAllRandevouz"> ${showAllDoctorsRandevouz(
+        allDoctors[doctor].doctor_id
+      )} </div>
       <button type="button" class="btn btn-dark btn-lg my-2" data-bs-toggle="collapse" data-bs-target="#collapseMain">Close</button>
     </div>
   </div>
@@ -222,8 +273,88 @@ function showDoctorsDetails(doctorID) {
   <li class="list-group-item">Telephone: ${allDoctors[doctorID].telephone}</li>
   </ul>`);
 }
+
+function updateRandevouz(action, id) {
+  let json = { action: action, id: id };
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      console.log("Randevouz Updated!");
+      document.querySelector(`#app-${id}`).remove();
+      document.querySelector("#alert").innerHTML = `
+      <div class="alert alert-success alert-dismissible fade show" role="danger">
+      Randevouz Updated!
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+    } else if (xhr.status !== 200) {
+      console.log("error: " + xhr.status);
+      console.log(xhr.responseText);
+      document.querySelector("#alert").innerHTML = `
+      <div class="alert alert-danger alert-dismissible fade show" role="danger">
+      ${JSON.parse(xhr.responseText).error}
+      <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      </div>`;
+    }
+  };
+  xhr.open("POST", "UpdateRandevouz", true);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
+}
+
+function showAllDoctorsRandevouz(doctor_id) {
+  let randevouz;
+  let json = { id: doctor_id };
+  let html = "";
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      randevouz = JSON.parse(xhr.responseText);
+      console.log(randevouz);
+      if (randevouz.done.length === 0) {
+        html = `<h5 class="text-center">No Randevouz</h5>`;
+        return;
+      }
+      html += `
+      <table class="table caption-top table-hover table-striped">
+      <caption>All Appointments</caption>
+      <thead>
+        <tr>
+          <th scope="col">Date</th>
+          <th scope="col">Price</th>
+          <th scope="col">Doctor Info</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="allAppointments">
+      `;
+      randevouz.free.forEach((appointment) => {
+        html += `
+        <tr id="app-${appointment.randevouz_id}">
+          <td>${appointment.date_time}</td>
+          <td>${appointment.price}€</td>
+          <td>${appointment.doctor_info}</td>
+          <td>
+          <button type="button" class="btn btn-dark" onclick="updateRandevouz('selected' , ${appointment.randevouz_id})">Select Appointment</button>
+          </td>
+        </tr>`;
+      });
+      html += `
+      </tbody>
+      </table>
+      `;
+    } else if (xhr.status !== 200) {
+      console.log("error doctors: " + xhr.status);
+    }
+  };
+  xhr.open("POST", "GetRantevouz", false);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.send(JSON.stringify(json));
+  return html;
+}
+
 // end of open details of a doctor
 
+////////////////////////////////////////////////////////////////////////////////////////////////
 //function to show all Blood Tests of the user and a form to add a new one
 function openAllBloodTests() {
   let myCollapse = document.getElementById("collapseMain");
@@ -240,7 +371,7 @@ function openAllBloodTests() {
       <div id="addNewBloodTest">${addNewBloodTest()}</div>
       <br>
       <h5 class="text-center">All Blood Tests:</h5>
-      <div class="d-flex justify-content-center" id="showAllBloodTests">${showAllBloodTests()}</div>
+      <div class="overflow-auto" id="showAllBloodTests">${showAllBloodTests()}</div>
       <br>
       <button type="button" class="btn btn-dark btn-lg my-2" data-bs-toggle="collapse" data-bs-target="#collapseMain">Close</button>
     </div>
@@ -296,6 +427,10 @@ function sendNewBloodTest() {
       <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
       </div>`;
       document.querySelector("#addNewBloodTestForm").reset();
+      document.querySelector(
+        "#showAllBloodTests"
+      ).innerHTML = `${showAllBloodTests()}
+      `;
     } else {
       console.log("Error");
       console.log(xhr.responseText);
@@ -325,8 +460,86 @@ function sendNewBloodTest() {
 }
 
 //function to show all Blood Tests of the user
-function showAllBloodTests() {}
+function showAllBloodTests() {
+  let json = {};
+  json["user_id"] = FinalUser.user_id;
+  let xhr = new XMLHttpRequest();
+  let allBloodTestsAndTreatments;
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      console.log("All Blood Tests");
+      allBloodTestsAndTreatments = JSON.parse(xhr.responseText);
+      console.log(allBloodTestsAndTreatments);
+    } else {
+      console.log("Error");
+      console.log(xhr.responseText);
+    }
+  };
+  xhr.open("POST", "UserBloodtest", false);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
+
+  let allBloodTests = `
+  <table class="table caption-top table-hover table-striped table-sm">
+      <caption>All BloodTests</caption>
+      <thead>
+        <tr>
+          <th scope="col">Test Date</th>
+          <th scope="col">Medical Center</th>
+          <th scope="col">Blood Sugar</th>
+          <th scope="col">Blood Sugar Level</th>
+          <th scope="col">Cholesterol</th>
+          <th scope="col">Cholesterol Level</th>
+          <th scope="col">Iron</th>
+          <th scope="col">Iron Level</th>
+          <th scope="col">Vitamin D3</th>
+          <th scope="col">Vitamin D3 Level</th>
+          <th scope="col">Vitamin B12</th>
+          <th scope="col">Vitamin B12 Level</th>
+        </tr>
+      </thead>
+      <tbody id="allTests">
+  `;
+  allBloodTestsAndTreatments.bloodtest.forEach((bloodtest) => {
+    allBloodTests += `
+    <tr>
+      <td>${bloodtest.test_date}</td>
+      <td>${bloodtest.medical_center}</td>
+      <td>${bloodtest.blood_sugar}</td>
+      <td>${
+        bloodtest.blood_sugar_level === "null"
+          ? ""
+          : bloodtest.blood_sugar_level
+      }</td>
+      <td>${bloodtest.cholesterol}</td>
+      <td>${
+        bloodtest.cholesterol_level === "null"
+          ? ""
+          : bloodtest.cholesterol_level
+      }</td>
+      <td>${bloodtest.iron}</td>
+      <td>${bloodtest.iron_level === "null" ? "" : bloodtest.iron_level}</td>
+      <td>${bloodtest.vitamin_d3}</td>
+      <td>${
+        bloodtest.vitamin_d3_level === "null" ? "" : bloodtest.vitamin_d3_level
+      }</td>
+      <td>${bloodtest.vitamin_b12}</td>
+      <td>${
+        bloodtest.vitamin_b12_level === "null"
+          ? ""
+          : bloodtest.vitamin_b12_level
+      }</td>
+    </tr>
+    `;
+  });
+  allBloodTests += `
+      </tbody>
+    </table>
+  `;
+  return allBloodTests;
+}
 //end of show all Blood Tests of the user
+////////////////////////////////////////////////////////////////////////////////////////////
 
 //here is a function that opens the modal widget
 let AllInfo = document.querySelector("#showInfo");
