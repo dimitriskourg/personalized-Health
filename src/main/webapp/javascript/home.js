@@ -29,47 +29,45 @@ function isLoggedIn() {
   };
   xhr.open("GET", "Login", true);
   xhr.send();
-
 }
-function ActiveRandevouz(){
-
-    let xhr = new XMLHttpRequest();
-    xhr.onload = function () {
-      if (xhr.status === 200) {
-        let ran = JSON.parse(xhr.responseText);
-        console.log(ran)
-        if (ran.success == null){
-
-          var div = document.getElementById("reminder");
-          div.innerHTML = "<div class=\"position-fixed top-0 end-0 p-3\" style=\"z-index: 11\">\n" +
-              "      <div id=\"liveToast\" class=\"toast\" role=\"alert\" aria-live=\"assertive\" aria-atomic=\"true\">\n" +
-              "        <div class=\"toast-header\">\n" +
-              "          <strong class=\"me-auto\">Randevouz Alert</strong>\n" +
-              "          <small>At: "+ran.date_time+"</small>\n" +
-              "          <button type=\"button\" class=\"btn-close\" data-bs-dismiss=\"toast\" aria-label=\"Close\"></button>\n" +
-              "        </div>\n" +
-              "        <div class=\"toast-body\">\n" +
-              "You have a rantevouz with <b>"+ran.doctor_name + "<br>Doctor's info:</b> "+ran.doctor_info + "<br><b>Price</b> is "+ran.price +
-              "        </div>\n" +
-              "      </div>\n" +
-              "    </div>"
-          var toast = new bootstrap.Toast(document.getElementById('liveToast'))
-          toast.show()
-
-
-
-
-
-        }
-      } else if (xhr.status !== 200) {
-        console.log(xhr.responseText);
+function ActiveRandevouz() {
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      let ran = JSON.parse(xhr.responseText);
+      console.log(ran);
+      if (ran.success == null) {
+        var div = document.getElementById("reminder");
+        div.innerHTML =
+          '<div class="position-fixed top-0 end-0 p-3" style="z-index: 11">\n' +
+          '      <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">\n' +
+          '        <div class="toast-header">\n' +
+          '          <strong class="me-auto">Randevouz Alert</strong>\n' +
+          "          <small>At: " +
+          ran.date_time +
+          "</small>\n" +
+          '          <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>\n' +
+          "        </div>\n" +
+          '        <div class="toast-body">\n' +
+          "You have a rantevouz with <b>" +
+          ran.doctor_name +
+          "<br>Doctor's info:</b> " +
+          ran.doctor_info +
+          "<br><b>Price</b> is " +
+          ran.price +
+          "        </div>\n" +
+          "      </div>\n" +
+          "    </div>";
+        var toast = new bootstrap.Toast(document.getElementById("liveToast"));
+        toast.show();
       }
-    };
-    xhr.open("POST", "ActiveRandevouz", true);
-    xhr.send();
-
+    } else if (xhr.status !== 200) {
+      console.log(xhr.responseText);
+    }
+  };
+  xhr.open("POST", "ActiveRandevouz", true);
+  xhr.send();
 }
-
 
 const logout = document.querySelector("#logout");
 logout.addEventListener("click", function () {
@@ -803,6 +801,226 @@ function showAllActiveTreatments() {
 //end of show all blood tests and Treatments of the user for specific dates
 ////////////////////////////////////////////////////////////////////////////////
 
+////////////////////////////////////////////////////////////////////////////////
+//start of show all randevouz of the user
+
+function showAllUserRandevouz() {
+  let json = { id: FinalUser.user_id };
+  let xhr = new XMLHttpRequest();
+  let randevouz;
+  let html;
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      randevouz = JSON.parse(xhr.responseText);
+      console.log(randevouz);
+    } else {
+      console.log(xhr.status);
+      console.log(xhr.responseText);
+    }
+  };
+  xhr.open("POST", "GetRandevouzUser", false);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
+
+  if (randevouz.done.length === 0 && randevouz.selected.length === 0) {
+    html = "<h5 class='text-center'>No Randevouz</h5>";
+    return html;
+  }
+
+  html = `
+  <table class="table caption-top table-hover table-striped">
+      <caption>All Appointments</caption>
+      <thead>
+        <tr>
+          <th scope="col">Status</th>
+          <th scope="col">Date</th>
+          <th scope="col">Price</th>
+          <th scope="col">Doctor Info</th>
+          <th scope="col">User Info</th>
+          <th scope="col">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="allAppointments">
+  `;
+
+  randevouz.selected.forEach((appointment, index) => {
+    html += `
+        <tr id="app-${appointment.randevouz_id}">
+          <th scope="row" class="table-warning">Selected</th>
+          <td>${appointment.date_time}</td>
+          <td>${appointment.price}€</td>
+          <td>${appointment.doctor_info}</td>
+          <td>${
+            appointment.user_info === "null" ? "" : appointment.user_info
+          }</td>
+          <td>
+          <button type="button" class="btn btn-danger" onclick="updateRandevouz('cancelled' , ${
+            appointment.randevouz_id
+          })">Cancel</button>
+          </td>
+        </tr>`;
+  });
+
+  randevouz.done.forEach((appointment, index) => {
+    html += `
+        <tr id="app-${appointment.randevouz_id}">
+          <th scope="row" class="table-success">Done</th>
+          <td>${appointment.date_time}</td>
+          <td>${appointment.price}€</td>
+          <td>${appointment.doctor_info}</td>
+          <td>${
+            appointment.user_info === "null" ? "" : appointment.user_info
+          }</td>
+          <td>
+          <button type="button" class="btn btn-success" onclick="openChat(${
+            appointment.doctor_id
+          })">Open Chat</button>
+          </td>
+        </tr>`;
+  });
+  html += `</tbody></table>
+  <div id="alert"></div>`;
+  return html;
+}
+
+//function to add message from doctor to patient
+function addMessagePatient(message, time) {
+  return `
+  <div class="d-flex flex-row justify-content-end mb-2 ms-5">
+    <div>
+    <p class="small p-2 me-3 mb-1 text-white rounded-3 bg-primary text-break">${message}</p>
+    <p class="small me-3 mb-1 rounded-3 text-muted d-flex justify-content-end">${time}</p>
+    </div>
+    <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3-bg.webp" alt="avatar 1"
+    style="width: 45px; height: 100%;">
+  </div>
+  `;
+}
+
+//function to add message from patient to doctor
+function addMessageDoctor(message, time) {
+  return `
+  <div class="d-flex flex-row justify-content-start mb-2 me-5">
+  <img src="./images/doctor.png" alt="avatar 1"
+    style="width: 45px; height: 100%;">
+  <div>
+    <p class="small p-2 ms-3 mb-1 rounded-3 text-break" style="background-color: #9b9d9e6e;">${message}</p>
+    <p class="small ms-3 mb-1 rounded-3 text-muted">${time}</p>
+  </div>
+  </div>
+  `;
+}
+
+//function to send message to server
+function sendMessage(userid, doctorid) {
+  let message = document.querySelector("#message").value;
+  document.querySelector("#message").value = "";
+  let json = {};
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      const response = JSON.parse(xhr.responseText);
+      document.querySelector(".mainChat").innerHTML += addMessagePatient(
+        message,
+        response.date_time
+      );
+      //go to the bottom of the mainChat
+      document.querySelector(".mainChat").scrollTop =
+        document.querySelector(".mainChat").scrollHeight;
+    } else if (xhr.status !== 200) {
+      console.log("error: " + xhr.status);
+      console.log(xhr.responseText);
+    }
+  };
+  json["message"] = message;
+  json["user_id"] = userid;
+  json["doctor_id"] = doctorid;
+  json["sender"] = "user";
+  console.log(json);
+  xhr.open("POST", "CreateMessage", true);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
+}
+
+//function to open chat collapse dialog
+function openChat(doctorid) {
+  let myCollapse = document.getElementById("collapseMain");
+  let bsCollapse = new bootstrap.Collapse(myCollapse, {
+    toggle: false,
+  });
+  myCollapse.innerHTML = `
+  <div class="card">
+    <div class="card-header" id="headingOne">
+    Chat
+    </div>
+    <div class="card-body">
+      <div class="mainChat my-2 overflow-auto" style="max-height: 310px; background-color: rgba(192,192,192,0.2); border-radius: 5px;"></div>
+    </div>
+    <div class="card-footer text-muted d-flex justify-content-start align-items-center p-3">
+      <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-chat/ava3-bg.webp" alt="avatar 3"
+        style="width: 40px; height: 100%;">
+      <input type="text" class="form-control form-control-lg" id="message"
+        placeholder="Type message">
+      <a class="mx-2" id="sendMessage"  onclick= "sendMessage(${FinalUser.user_id}, ${doctorid})"><i class="fas fa-paper-plane"></i></a>
+      <button type="button" class="btn-close my-2" data-bs-toggle="collapse" data-bs-target="#collapseMain"></button>
+      </div>
+  </div>`;
+
+  // to send message when enter is pressed
+  let input = document.getElementById("message");
+
+  // Execute a function when the user releases a key on the keyboard
+  input.addEventListener("keyup", function (event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+      // Cancel the default action, if needed
+      event.preventDefault();
+      // Trigger the button element with a click
+      document.getElementById("sendMessage").click();
+    }
+  });
+
+  document.querySelector(".mainChat").innerHTML = ``;
+  let chat;
+  let json = {};
+  //get all messages from server
+  let xhr = new XMLHttpRequest();
+  xhr.onload = function () {
+    if (xhr.status === 200) {
+      chat = JSON.parse(xhr.responseText);
+      console.log(chat);
+      chat.forEach((message) => {
+        if (message.sender === "doctor") {
+          document.querySelector(".mainChat").innerHTML += addMessageDoctor(
+            message.message,
+            message.date_time
+          );
+        } else if (message.sender === "user") {
+          document.querySelector(".mainChat").innerHTML += addMessagePatient(
+            message.message,
+            message.date_time
+          );
+        }
+      });
+      document.querySelector(".mainChat").scrollTop =
+        document.querySelector(".mainChat").scrollHeight;
+    } else if (xhr.status !== 200) {
+      console.log("error: " + xhr.status);
+      console.log(xhr.responseText);
+    }
+  };
+  json["user_id"] = FinalUser.user_id;
+  json["doctor_id"] = doctorid;
+  xhr.open("POST", "GetMessage", true);
+  xhr.setRequestHeader("Content-type", "application/json; charset=utf-8");
+  xhr.send(JSON.stringify(json));
+
+  bsCollapse.show();
+}
+
+//end of show all randevouz of the user
+///////////////////////////////////////////////////////////////////////////////
+
 //here is a function that opens the modal widget
 let AllInfo = document.querySelector("#showInfo");
 AllInfo.addEventListener("show.bs.modal", function (event) {
@@ -867,6 +1085,10 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
   } else if (info === "activeTreatments") {
     modalTitle.innerHTML = "Active Treatments";
     modalBody.innerHTML = `${showAllActiveTreatments()}`;
+  } else if (info === "showAllRandevouz") {
+    modalTitle.innerHTML = "Randevouz";
+    modalBody.innerHTML = `<div class="collapse mb-3" id="collapseMain"></div>
+    ${showAllUserRandevouz()}`;
   } else {
     //show all doctors
     modalTitle.innerHTML = "All Doctors";
@@ -945,3 +1167,6 @@ function BMIcalculator(cb, cb2) {
 function cc() {
   updateSettings();
 }
+
+//todo fix user info in select appointment in all doctors
+//todo fix select appointment not change user id

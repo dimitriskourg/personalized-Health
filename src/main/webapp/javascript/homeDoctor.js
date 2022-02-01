@@ -640,7 +640,7 @@ AllInfo.addEventListener("show.bs.modal", function (event) {
             <button type="button" class="btn btn-info my-1" onclick = "openHistory(${
               appointment.user_id
             })" >Show History</button>
-            <button type="button" class="btn btn-secondary my-1" onclick = "openChat(${
+            <button type="button" class="btn btn-success my-1" onclick = "openChat(${
               appointment.user_id
             })" >Open Patient Chat</button>
             </td>
