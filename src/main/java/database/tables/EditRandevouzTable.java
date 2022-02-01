@@ -95,6 +95,15 @@ public class EditRandevouzTable {
         con.close();
     }
 
+    public void updateRandevouz(int randevouzID, String status , String user_info , int user_id) throws SQLException, ClassNotFoundException {
+        Connection con = DB_Connection.getConnection();
+        Statement stmt = con.createStatement();
+        String updateQuery = "UPDATE randevouz SET status='" + status + "', user_info='"+user_info+"', user_id='"+user_id+"' WHERE randevouz_id = '" + randevouzID + "'";
+        stmt.executeUpdate(updateQuery);
+        stmt.close();
+        con.close();
+    }
+
     public void createRandevouzTable() throws SQLException, ClassNotFoundException {
         Connection con = DB_Connection.getConnection();
         Statement stmt = con.createStatement();

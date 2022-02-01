@@ -28,7 +28,7 @@ public class ActiveRandevouz extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         HttpSession session = request.getSession();
         PrintWriter out1 = response.getWriter();
-        EditSimpleUserTable su = new EditSimpleUserTable();
+
         response.setContentType("application/json; charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
 
