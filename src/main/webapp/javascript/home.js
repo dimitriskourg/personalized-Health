@@ -349,7 +349,7 @@ function showAllDoctorsRandevouz(doctor_id) {
     if (xhr.status === 200) {
       randevouz = JSON.parse(xhr.responseText);
       console.log(randevouz);
-      if (randevouz.done.length === 0) {
+      if (randevouz.free.length === 0) {
         html = `<h5 class="text-center">No Randevouz</h5>`;
         return;
       }
