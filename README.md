@@ -4,7 +4,5 @@ personalized-Health is a project for Web Development class CS-359. We designed a
 ## Installation
 In order to run it, install XAMPP and Apache and after run the project in Intellij.
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
-
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
